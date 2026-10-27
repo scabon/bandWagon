@@ -1,0 +1,755 @@
+/* Light theme (default) */
+:root {
+  --bg-color: #f8f9fa;
+  --text-color: #333;
+  --section-bg: white;
+  --border-color: #ddd;
+  --input-bg: white;
+  --input-border: #ddd;
+  --label-color: #555;
+  --shadow-color: rgba(0,0,0,0.1);
+  --scrollbar-track: #f1f1f1;
+  --scrollbar-thumb: #ccc;
+  --empty-message-color: #666;
+  --stats-color: #666;
+}
+
+/* Dark theme. popup.js resolves the "system" theme setting through
+   matchMedia and sets data-theme on the document element, so the CSS
+   only ever sees "light" or "dark" */
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #e0e0e0;
+  --section-bg: #2d2d2d;
+  --border-color: #444;
+  --input-bg: #2d2d2d;
+  --input-border: #444;
+  --label-color: #aaa;
+  --shadow-color: rgba(0,0,0,0.3);
+  --scrollbar-track: #2d2d2d;
+  --scrollbar-thumb: #555;
+  --empty-message-color: #777;
+  --stats-color: #999;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  margin: 0;
+  padding: 0;
+}
+
+/* Fixed 350px on desktop gives the popup its size; max-width lets the
+   layout shrink on narrow mobile screens (Firefox for Android opens the
+   popup as a full-width sheet) instead of clipping at 350px */
+.container {
+  padding: 16px;
+  width: 350px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 0 0 16px 0;
+  color: #0066cc;
+  text-align: center;
+  border-bottom: 2px solid #0066cc;
+  padding-bottom: 8px;
+}
+
+h1 img {
+  width: 20px;
+  height: 20px;
+  vertical-align: -4px;
+  margin-right: 6px;
+  border-radius: 4px;
+}
+
+h2 {
+  font-size: 16px;
+  margin: 16px 0 8px 0;
+  color: var(--label-color);
+}
+
+.section {
+  background: var(--section-bg);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: var(--label-color);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}
+
+/* Expiration date row: text input + calendar toggle button */
+.date-row {
+  display: flex;
+  gap: 6px;
+}
+
+.date-input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.date-input-wrap input {
+  width: 100%;
+}
+
+.calendar-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.calendar-btn:hover {
+  border-color: #0066cc;
+  color: #0066cc;
+}
+
+/* Custom calendar widget (the native date picker cannot open
+   inside a Firefox extension popup) */
+.calendar-panel {
+  margin-top: 6px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--section-bg);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.calendar-title {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.calendar-nav {
+  border: none;
+  background: none;
+  color: var(--text-color);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.calendar-nav:hover {
+  background: var(--scrollbar-track);
+  color: #0066cc;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  text-align: center;
+}
+
+.calendar-weekday {
+  font-size: 11px;
+  color: var(--label-color);
+  padding: 2px 0;
+}
+
+.calendar-day {
+  border: none;
+  background: none;
+  border-radius: 4px;
+  padding: 4px 0;
+  font-size: 13px;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.calendar-day:hover {
+  background: #0066cc;
+  color: white;
+}
+
+.calendar-day.today {
+  font-weight: 600;
+  color: #0066cc;
+}
+
+.calendar-day.today:hover {
+  color: white;
+}
+
+.calendar-day:disabled {
+  color: var(--text-color);
+  opacity: 0.4;
+  cursor: default;
+}
+
+.calendar-day:disabled:hover {
+  background: none;
+  opacity: 0.4;
+}
+
+.calendar-day.selected {
+  background: #0066cc;
+  color: white;
+  font-weight: 600;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #0066cc;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0052a3;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+/* No inner scrollbar on the voucher list: the whole popup scrolls
+   (one scrollbar total, decided 2026-10-25) */
+
+.voucher-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  background: var(--section-bg);
+}
+
+.voucher-item .code {
+  font-weight: 600;
+  color: #0066cc;
+  font-family: monospace;
+}
+
+.voucher-item .expiry {
+  font-size: 12px;
+  color: var(--label-color);
+}
+
+.voucher-item .amount {
+  font-size: 12px;
+  font-weight: 600;
+  color: #28a745;
+}
+
+.voucher-item.valid {
+  border-left: 3px solid #28a745;
+}
+
+.voucher-item.expired {
+  border-left: 3px solid #dc3545;
+  opacity: 0.7;
+}
+
+.voucher-item .actions {
+  display: flex;
+  gap: 4px;
+}
+
+.empty-message {
+  color: var(--empty-message-color);
+  font-style: italic;
+  text-align: center;
+  padding: 16px;
+}
+
+.stats {
+  font-size: 13px;
+  color: var(--stats-color);
+  display: flex;
+  justify-content: space-between;
+}
+
+.stats p {
+  margin: 4px 0;
+}
+
+.stats span {
+  font-weight: 600;
+  color: #0066cc;
+}
+
+/* Site name on each voucher row: clickable link to the site */
+.voucher-item .site-name {
+  font-weight: 600;
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.voucher-item .site-name:hover {
+  text-decoration: underline;
+}
+
+.btn-danger.confirm {
+  background-color: #8a1420;
+}
+
+.status-message {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Sort control next to the voucher list title */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-header h2 {
+  margin: 16px 0 8px 0;
+}
+
+/* +/− toggle for the add form (collapsed by default) */
+.add-toggle {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  margin-top: 8px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.add-toggle:hover {
+  border-color: #0066cc;
+  color: #0066cc;
+}
+
+/* Remove-expired bulk action next to the sort control */
+.list-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.remove-expired-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.status-message.error {
+  background-color: #fdecea;
+  color: #c0392b;
+  border: 1px solid #f5c6cb;
+}
+
+[data-theme="dark"] .status-message.error {
+  background-color: #3a1a1a;
+  color: #ff8f8f;
+  border-color: #5c2a2a;
+}
+
+/* Grey format hint overlaid on the date input: typed text is rendered
+   invisibly to hold the caret position, the rest of the pattern in grey */
+.input-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.input-ghost .ghost-typed {
+  color: transparent;
+}
+
+/* Input and ghost must render with the same font for the hint to line up */
+.date-input-wrap input,
+.input-ghost {
+  font-family: inherit;
+}
+
+.input-ghost .ghost-rest {
+  color: var(--label-color);
+  opacity: 0.55;
+}
+
+.status-message.warning {
+  background-color: #fff8e1;
+  color: #8a6d3b;
+  border: 1px solid #ffe08a;
+}
+
+.status-message.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+[data-theme="dark"] .status-message.warning {
+  background-color: #3a311a;
+  color: #ffd98f;
+  border-color: #5c4d1a;
+}
+
+[data-theme="dark"] .status-message.success {
+  background-color: #1a3320;
+  color: #8fd98f;
+  border-color: #2a5c2a;
+}
+
+.form-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* The status slot collapses to nothing when no message is shown; the
+   gap lives in the message's own margin-top. Showing/clearing a
+   message changes the popup height - accepted (2026-10-25) so the
+   idle popup stays compact. */
+.status-slot {
+  min-height: 0;
+}
+
+.btn-secondary {
+  background-color: var(--section-bg);
+  color: var(--text-color);
+  border: 1px solid var(--input-border);
+}
+
+.btn-secondary:hover {
+  border-color: #0066cc;
+  color: #0066cc;
+}
+
+/* Header menu (hamburger button + dropdown). The header is a flex row
+   (same layout as the touch media block below): the title centers in
+   the space left of the button, so it never runs under the button on
+   the right. */
+.popup-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #0066cc;
+  margin-bottom: 16px;
+}
+
+.popup-header h1 {
+  flex: 1;
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.menu-btn {
+  position: static;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.menu-btn:hover,
+.menu-btn.open {
+  border-color: #0066cc;
+  color: #0066cc;
+}
+
+.menu-panel {
+  position: absolute;
+  top: 34px;
+  right: 0;
+  z-index: 20;
+  min-width: 140px;
+  padding: 4px 0;
+  background: var(--section-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.menu-panel button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 14px;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.menu-panel button svg {
+  flex-shrink: 0;
+}
+
+.menu-panel button:hover {
+  background: var(--scrollbar-track);
+}
+
+/* Sub-views (Settings / Help / About) */
+.back-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid #0066cc;
+  margin-bottom: 16px;
+}
+
+.back-btn {
+  border: none;
+  background: none;
+  padding: 0 4px;
+  font-size: 18px;
+  line-height: 1;
+  color: #0066cc;
+  cursor: pointer;
+}
+
+.back-row h1 {
+  flex: 1;
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 8px;
+}
+
+/* Selects (sort order + settings) share one style */
+select {
+  padding: 4px 8px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+#view-settings select {
+  width: 100%;
+  font-size: 14px;
+  padding: 6px 8px;
+}
+
+.setting-hint {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--label-color);
+}
+
+.checkbox-row label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+/* Help / About text blocks */
+.help-text p {
+  margin: 8px 0;
+}
+
+.help-text ul {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.about-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0066cc;
+}
+
+.about-version {
+  font-size: 12px;
+  color: var(--label-color);
+  margin-bottom: 10px;
+}
+
+.about-note {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--label-color);
+}
+
+.about-site {
+  font-size: 13px;
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.about-site:hover {
+  text-decoration: underline;
+}
+
+.donate-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.donate-row a {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.donate-liberapay {
+  background-color: #1a1717;
+  color: white;
+}
+
+.donate-tipeee {
+  background-color: #cb1b30;
+  color: white;
+}
+
+.donate-row a:hover {
+  opacity: 0.85;
+}
+
+/* Touch devices (Firefox for Android): bigger tap targets on the small
+   controls and press feedback via :active. :hover still applies after a
+   tap (sticky hover) but stays cosmetic. Desktop is untouched - these
+   rules only match coarse pointers. */
+@media (pointer: coarse) {
+  /* Firefox for Android sizes the popup sheet to the page content;
+     filling 100% lets the panel take the full available width instead
+     of the desktop 350px card. */
+  .container {
+    width: 100%;
+  }
+
+  /* The header is already a centered flex row (see above); on touch
+     only the control sizes grow. */
+  .menu-panel {
+    top: 48px;
+  }
+
+  .add-toggle,
+  .menu-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .calendar-btn {
+    min-width: 44px;
+  }
+
+  .calendar-nav {
+    padding: 8px 12px;
+  }
+
+  .calendar-day {
+    padding: 8px 0;
+    font-size: 14px;
+  }
+
+  .calendar-weekday {
+    padding: 6px 0;
+  }
+
+  .remove-expired-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .back-btn {
+    padding: 4px 10px;
+    font-size: 22px;
+  }
+
+  .btn:active {
+    opacity: 0.75;
+  }
+
+  .voucher-item .site-name:active,
+  .donate-row a:active {
+    opacity: 0.75;
+  }
+}

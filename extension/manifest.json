@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "bandWagon",
+  "version": "0.1.0",
+  "description": "Track vouchers and gift cards for any site, and get reminders to use them",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
+    "default_title": "bandWagon"
+  },
+  "permissions": [
+    "storage",
+    "tabs",
+    "notifications",
+    "alarms"
+  ],
+  "background": {
+    "scripts": [
+      "background/background.js",
+      "shared/sync-common.js",
+      "background/sync.js",
+      "background/site-notify.js",
+      "background/expiry-notify.js"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "bandwagon@cabon14.com",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  }
+}
