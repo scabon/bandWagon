@@ -69,7 +69,7 @@
           <input type="text" id="voucherCode" data-i18n-placeholder="codePlaceholder" placeholder="e.g., ABC123XYZ" autocomplete="off">
         </div>
         <div class="form-group">
-          <label for="voucherValue" data-i18n="valueLabel">Value (&euro;):</label>
+          <label for="voucherValue" id="valueLabel" data-i18n="valueLabel">Value</label>
           <input type="text" id="voucherValue" data-i18n-placeholder="valuePlaceholder" placeholder="e.g., 25" inputmode="decimal" autocomplete="off">
         </div>
         <div class="form-group">
@@ -118,7 +118,7 @@
     <div class="section stats">
       <p><span data-i18n="statsTotal">Total</span>: <span id="totalVouchers">0</span> <span data-i18n="statsVouchers">vouchers</span></p>
       <p><span data-i18n="statsValid">Valid</span>: <span id="validVouchers">0</span> <span data-i18n="statsVouchers">vouchers</span></p>
-      <p><span data-i18n="statsValue">Value</span>: <span id="validValue">0</span> &euro;</p>
+      <p><span data-i18n="statsValue">Value</span>: <span id="validValue">0</span> <span id="currencySymbol">&#8364;</span></p>
     </div>
   </div>
 
@@ -143,6 +143,14 @@
           <option value="en">&#127468;&#127463; English</option>
           <option value="fr">&#127467;&#127479; Fran&ccedil;ais</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label for="currencySelect" data-i18n="settingsCurrency">Currency</label>
+        <select id="currencySelect">
+          <option value="EUR">&#8364; EUR</option>
+          <option value="USD">$ USD</option>
+        </select>
+        <p class="setting-hint" data-i18n="settingsCurrencyHint">Currency shown for voucher amounts</p>
       </div>
       <div class="form-group checkbox-row">
         <label>

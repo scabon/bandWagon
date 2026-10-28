@@ -1458,7 +1458,7 @@ def popup_tests(s):
               and "seed-e-7" not in st["expSnooze"],
               (st["notifications"], st["expSnooze"]))
 
-        # ---- voucher value in euros (optional field) ----
+        # ---- voucher value (optional field, currency-aware) ----
         s.client.navigate(url)
         time.sleep(1)
 
@@ -1485,7 +1485,7 @@ def popup_tests(s):
         st = pstate(s)
         check("value: an invalid amount is rejected inline, nothing added",
               len(st["items"]) == 2 and not st["status"]["hidden"]
-              and "value in euros" in st["status"]["text"], st["status"])
+              and "Enter a value" in st["status"]["text"], st["status"])
 
         # editing loads the amount and can change (or clear) it
         s.page_js("document.querySelector('.voucher-item .edit-btn').click();"
@@ -1530,6 +1530,22 @@ def popup_tests(s):
         check("value: sort by value puts the highest first, no-amount last",
               codes == ["E2E-VAL-2", "E2E-VAL-1", "E2E-NOVAL-1"]
               and st["value"] == "80.5", (codes, st["value"]))
+
+        # currency setting: amounts, stats symbol and form label follow it
+        s.page_js("var c = document.getElementById('currencySelect');"
+                  "c.value = 'USD'; c.dispatchEvent(new Event('change'));"
+                  "return 'ok';")
+        time.sleep(0.6)
+        cur = s.page_js(
+            "return [document.querySelector('.amount').textContent,"
+            "        document.getElementById('currencySymbol').textContent,"
+            "        document.getElementById('valueLabel').textContent];")
+        check("currency: USD switches the amount, stats symbol and label",
+              cur[0][0] == "$" and cur[1] == "$" and "($" in cur[2], cur)
+        s.page_js("var c = document.getElementById('currencySelect');"
+                  "c.value = 'EUR'; c.dispatchEvent(new Event('change'));"
+                  "return 'ok';")
+        time.sleep(0.6)
 
         # ---- draft: the popup is destroyed when it loses focus; a
         # half-filled form survives as a storage.local draft ----

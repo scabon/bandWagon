@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const menuPanel = document.getElementById('menuPanel');
   const themeSelect = document.getElementById('themeSelect');
   const languageSelect = document.getElementById('languageSelect');
+  const currencySelect = document.getElementById('currencySelect');
+  const currencySymbolSpan = document.getElementById('currencySymbol');
   const notificationsToggle = document.getElementById('notificationsToggle');
   const expiryNotificationsToggle = document.getElementById('expiryNotificationsToggle');
   const leadDaysGroup = document.getElementById('leadDaysGroup');
@@ -59,9 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
       siteUrlPlaceholder: 'e.g., www.amazon.fr',
       codeLabel: 'Code (optional):',
       codePlaceholder: 'e.g., ABC123XYZ',
-      valueLabel: 'Value (\u20ac):',
+      valueLabel: 'Value',
       valuePlaceholder: 'e.g., 25',
-      errValue: 'Enter a value in euros (e.g., 25).',
+      errValue: 'Enter a value (e.g., 25).',
       expiryLabel: 'Expiration Date:',
       calendarAria: 'Pick a date from the calendar',
       calendarTitle: 'Pick a date',
@@ -87,6 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
       themeDark: 'Dark',
       settingsLanguage: 'Language',
       langSystem: 'System',
+      settingsCurrency: 'Currency',
+      settingsCurrencyHint: 'Currency shown for voucher amounts',
       settingsNotifications: 'Notifications',
       settingsNotificationsHint: 'Site arrival and voucher expiry reminders',
       settingsExpiryNotifications: 'Expiry reminders',
@@ -112,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
       weekdays: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
       helpSections: [
         { title: 'Adding a voucher',
-          text: 'Press the + button to open the form, then enter the site name, its URL, the voucher code (optional), its value in euros (optional) and its expiration date, and press Add Voucher. The site name autocompletes from the sites you already use; the date format is YYYY-MM-DD, use the calendar button to pick a date. If you close the popup mid-entry, your progress is restored when you reopen it.',
+          text: 'Press the + button to open the form, then enter the site name, its URL, the voucher code (optional), its value (optional) and its expiration date, and press Add Voucher. The site name autocompletes from the sites you already use; the date format is YYYY-MM-DD, use the calendar button to pick a date. If you close the popup mid-entry, your progress is restored when you reopen it.',
           items: [] },
         { title: 'Managing vouchers',
           text: '',
@@ -134,8 +138,9 @@ document.addEventListener('DOMContentLoaded', function() {
       changelogEntries: [
         { version: '1.0.0',
           items: ['First release: keep track of vouchers and gift cards for any site.',
-                  'Vouchers carry a site name and URL; the code and the euro value are optional.',
+                  'Vouchers carry a site name and URL; the code and the value are optional.',
                   'Site names autocomplete from known sites and render as a clickable link on each row.',
+                  'Amounts display in your currency of choice, € or $ (Settings).',
                   'Arrival notifications fire for every site you hold valid vouchers for, not just one.',
                   'Duplicate detection is per site: the same code on two different sites is not a duplicate.',
                   'Site URLs are normalized on save (scheme added when missing, host lowercased, leading www. ignored for matching).',
@@ -168,9 +173,9 @@ document.addEventListener('DOMContentLoaded', function() {
       siteUrlPlaceholder: 'ex. www.amazon.fr',
       codeLabel: 'Code (facultatif) :',
       codePlaceholder: 'ex. ABC123XYZ',
-      valueLabel: 'Valeur (\u20ac) :',
+      valueLabel: 'Valeur',
       valuePlaceholder: 'ex. 25',
-      errValue: 'Saisissez une valeur en euros (ex. 25).',
+      errValue: 'Saisissez une valeur (ex. 25).',
       expiryLabel: 'Date d\u2019expiration :',
       calendarAria: 'Choisir une date dans le calendrier',
       calendarTitle: 'Choisir une date',
@@ -196,6 +201,8 @@ document.addEventListener('DOMContentLoaded', function() {
       themeDark: 'Sombre',
       settingsLanguage: 'Langue',
       langSystem: 'Syst\u00e8me',
+      settingsCurrency: 'Devise',
+      settingsCurrencyHint: 'Devise affich\u00e9e pour les montants des bons',
       settingsNotifications: 'Notifications',
       settingsNotificationsHint: 'Rappels : arriv\u00e9e sur un site et expiration des bons',
       settingsExpiryNotifications: 'Rappels d\u2019expiration',
@@ -221,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
       weekdays: ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'],
       helpSections: [
         { title: 'Ajouter un bon',
-          text: 'Appuyez sur le bouton + pour ouvrir le formulaire, puis saisissez le nom du site, son URL, le code du bon (facultatif), sa valeur en euros (facultative) et sa date d\u2019expiration, et appuyez sur Ajouter. Le nom du site se compl\u00e8te automatiquement parmi les sites d\u00e9j\u00e0 utilis\u00e9s ; le format de date est AAAA-MM-JJ, utilisez le bouton calendrier pour choisir une date. Si vous fermez le popup en cours de saisie, votre progression est restaur\u00e9e \u00e0 la r\u00e9ouverture.',
+          text: 'Appuyez sur le bouton + pour ouvrir le formulaire, puis saisissez le nom du site, son URL, le code du bon (facultatif), sa valeur (facultative) et sa date d\u2019expiration, et appuyez sur Ajouter. Le nom du site se compl\u00e8te automatiquement parmi les sites d\u00e9j\u00e0 utilis\u00e9s ; le format de date est AAAA-MM-JJ, utilisez le bouton calendrier pour choisir une date. Si vous fermez le popup en cours de saisie, votre progression est restaur\u00e9e \u00e0 la r\u00e9ouverture.',
           items: [] },
         { title: 'G\u00e9rer les bons',
           text: '',
@@ -243,8 +250,9 @@ document.addEventListener('DOMContentLoaded', function() {
       changelogEntries: [
         { version: '1.0.0',
           items: ['Premi\u00e8re version : suivez vos bons et cartes cadeaux pour tous vos sites.',
-                  'Les bons portent un nom de site et une URL ; le code et la valeur en euros sont facultatifs.',
+                  'Les bons portent un nom de site et une URL ; le code et la valeur sont facultatifs.',
                   'Les noms de site se compl\u00e8tent automatiquement et s\u2019affichent sous forme de lien cliquable sur chaque ligne.',
+                  'Les montants s\u2019affichent dans la devise de votre choix, \u20ac ou $ (param\u00e8tres).',
                   'La notification d\u2019arriv\u00e9e se d\u00e9clenche pour chaque site o\u00f9 vous avez des bons valides, pas seulement un.',
                   'Les doublons sont d\u00e9tect\u00e9s par site : le m\u00eame code sur deux sites diff\u00e9rents n\u2019est pas un doublon.',
                   'Les URL sont normalis\u00e9es \u00e0 l\u2019enregistrement (sch\u00e9ma ajout\u00e9 si manquant, h\u00f4te en minuscules, \u00ab www. \u00bb initial ignor\u00e9 pour la correspondance).',
@@ -303,12 +311,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-i18n-label]').forEach(function(node) {
       node.setAttribute('aria-label', t(node.dataset.i18nLabel));
     });
+    updateValueLabel();
   }
 
   // ------------------------------------------------------------- settings
   const DEFAULT_SETTINGS = {
     theme: 'system',      // 'system' | 'light' | 'dark'
     language: 'system',   // 'system' | 'en' | 'fr'
+    currency: 'EUR',       // 'EUR' | 'USD' (currency for amounts)
     notifications: true,
     expiryNotifications: true,
     notifyLeadDays: 7     // days before expiry to send the lead-time reminder
@@ -352,6 +362,8 @@ document.addEventListener('DOMContentLoaded', function() {
       settings = Object.assign({}, DEFAULT_SETTINGS, data.settings || {});
       themeSelect.value = settings.theme;
       languageSelect.value = settings.language;
+      currencySelect.value = settings.currency;
+      currencySymbolSpan.textContent = currencySymbol();
       notificationsToggle.checked = settings.notifications;
       expiryNotificationsToggle.checked = settings.expiryNotifications;
       leadDaysGroup.hidden = !settings.expiryNotifications;
@@ -375,6 +387,14 @@ document.addEventListener('DOMContentLoaded', function() {
     settings.language = languageSelect.value;
     applyLanguage();
     saveSettings();
+  });
+
+  currencySelect.addEventListener('change', function() {
+    settings.currency = currencySelect.value;
+    currencySymbolSpan.textContent = currencySymbol();
+    updateValueLabel();
+    saveSettings();
+    loadVouchers();
   });
 
   notificationsToggle.addEventListener('change', function() {
@@ -627,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function() {
     expiryGhost.replaceChildren(typed, rest);
   }
 
-  // Parse the optional value-in-euros field. Returns a positive number
+  // Parse the optional value field. Returns a positive number
   // rounded to cents, or null when the field is empty; invalid input
   // returns undefined (the caller shows an inline error)
   function parseValueInput(str) {
@@ -637,11 +657,24 @@ document.addEventListener('DOMContentLoaded', function() {
     return Math.round(parsed * 100) / 100;
   }
 
-  // Format the euro amount for display ("25 €", French decimal comma)
+  // The currency symbol for amounts, from the Settings (EUR default)
+  function currencySymbol() {
+    return settings.currency === 'USD' ? '$' : '\u20ac';
+  }
+
+  // The value label carries the chosen currency symbol
+  function updateValueLabel() {
+    document.getElementById('valueLabel').textContent =
+        t('valueLabel') + ' (' + currencySymbol() + ')' +
+        (currentLang === 'fr' ? ' :' : ':');
+  }
+
+  // Format the amount for display ("25 €" / "$25"; French decimal
+  // comma)
   function formatAmount(amount) {
     let text = String(amount);
     if (currentLang === 'fr') text = text.replace('.', ',');
-    return text + ' \u20ac';
+    return settings.currency === 'USD' ? '$' + text : text + ' \u20ac';
   }
 
   // Form submission

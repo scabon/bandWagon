@@ -17,8 +17,9 @@ When releasing a new version:
 ## [1.0.0] — 2026-10-28
 
 - First release: keep track of vouchers and gift cards for any site.
-- Vouchers carry a site name and URL; the code and the euro value are optional.
+- Vouchers carry a site name and URL; the code and the value are optional.
 - Site names autocomplete from known sites and render as a clickable link on each row.
+- Amounts display in your currency of choice, € or $ (Settings).
 - Arrival notifications fire for every site you hold valid vouchers for, not just one.
 - Duplicate detection is per site: the same code on two different sites is not a duplicate.
 - Site URLs are normalized on save (scheme added when missing, host lowercased, leading www. ignored for matching).
