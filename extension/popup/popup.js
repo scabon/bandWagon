@@ -133,10 +133,15 @@ document.addEventListener('DOMContentLoaded', function() {
       ],
       changelogEntries: [
         { version: '0.1.0',
-          items: ['First release, forked from wagonBar (the SNCF Connect voucher reminder) and generalized to any site.',
-                  'Vouchers now carry a site name and URL; the code is optional.',
+          items: ['First release: keep track of vouchers and gift cards for any site.',
+                  'Vouchers carry a site name and URL; the code and the euro value are optional.',
+                  'Site names autocomplete from known sites and render as a clickable link on each row.',
                   'Arrival notifications fire for every site you hold valid vouchers for, not just one.',
-                  'Vouchers sync across devices through your browser account.'] }
+                  'Duplicate detection is per site: the same code on two different sites is not a duplicate.',
+                  'Site URLs are normalized on save (scheme added when missing, host lowercased, leading www. ignored for matching).',
+                  'Expiry lead-time reminders with a configurable lead time and a "Remind me tomorrow" snooze.',
+                  'Vouchers sync across devices through your browser account.',
+                  'Also runs on Chrome and Chromium-based browsers; Safari stays code-compatible.'] }
       ],
       aboutTagline: 'A small reminder for the vouchers and gift cards you keep forgetting to use.',
       aboutNote: 'Your vouchers stay in your own browser.',
@@ -237,10 +242,15 @@ document.addEventListener('DOMContentLoaded', function() {
       ],
       changelogEntries: [
         { version: '0.1.0',
-          items: ['Premi\u00e8re version, d\u00e9riv\u00e9e de wagonBar (le rappel de bons SNCF Connect) et g\u00e9n\u00e9ralis\u00e9e \u00e0 tous les sites.',
-                  'Les bons portent d\u00e9sormais un nom de site et une URL ; le code est facultatif.',
+          items: ['Premi\u00e8re version : suivez vos bons et cartes cadeaux pour tous vos sites.',
+                  'Les bons portent un nom de site et une URL ; le code et la valeur en euros sont facultatifs.',
+                  'Les noms de site se compl\u00e8tent automatiquement et s\u2019affichent sous forme de lien cliquable sur chaque ligne.',
                   'La notification d\u2019arriv\u00e9e se d\u00e9clenche pour chaque site o\u00f9 vous avez des bons valides, pas seulement un.',
-                  'Les bons se synchronisent entre appareils via le compte du navigateur.'] }
+                  'Les doublons sont d\u00e9tect\u00e9s par site : le m\u00eame code sur deux sites diff\u00e9rents n\u2019est pas un doublon.',
+                  'Les URL sont normalis\u00e9es \u00e0 l\u2019enregistrement (sch\u00e9ma ajout\u00e9 si manquant, h\u00f4te en minuscules, \u00ab www. \u00bb initial ignor\u00e9 pour la correspondance).',
+                  'Rappels avant expiration avec un d\u00e9lai configurable et un report \u00ab me le rappeler demain \u00bb.',
+                  'Les bons se synchronisent entre appareils via le compte du navigateur.',
+                  'Fonctionne aussi sur Chrome et les navigateurs bas\u00e9s sur Chromium ; Safari reste compatible.'] }
       ],
       aboutTagline: 'Un petit rappel pour les bons et cartes cadeaux que vous oubliez d\u2019utiliser.',
       aboutNote: 'Vos bons restent dans votre navigateur.',
