@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const siteNameInput = document.getElementById('siteName');
   const siteUrlInput = document.getElementById('siteUrl');
   const siteList = document.getElementById('siteList');
+  // URL-first entry: names deduced from the URL reuse the host's
+  // known name; siteNameAuto tracks that the field is auto-filled
+  let knownSiteNames = {};
+  let siteNameAuto = false;
   const totalVouchersSpan = document.getElementById('totalVouchers');
   const validVouchersSpan = document.getElementById('validVouchers');
   const validValueSpan = document.getElementById('validValue');
@@ -116,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
       weekdays: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
       helpSections: [
         { title: 'Adding a voucher',
-          text: 'Press the + button to open the form, then enter the site name, its URL, the voucher code (optional), its value (optional) and its expiration date, and press Add Voucher. The site name autocompletes from the sites you already use; the date format is YYYY-MM-DD, use the calendar button to pick a date. If you close the popup mid-entry, your progress is restored when you reopen it.',
+          text: 'Press the + button to open the form, then enter the site URL (the site name fills in automatically from it and stays editable), the voucher code (optional), its value (optional) and its expiration date, and press Add Voucher. The date format is YYYY-MM-DD, use the calendar button to pick a date. If you close the popup mid-entry, your progress is restored when you reopen it.',
           items: [] },
         { title: 'Managing vouchers',
           text: '',
@@ -139,7 +143,8 @@ document.addEventListener('DOMContentLoaded', function() {
         { version: '1.0.0',
           items: ['First release: keep track of vouchers and gift cards for any site.',
                   'Vouchers carry a site name and URL; the code and the value are optional.',
-                  'Site names autocomplete from known sites and render as a clickable link on each row.',
+                  'Enter the site URL first: the site name is deduced from it, reusing the name you already use for that site, and stays editable.',
+                  'Site names render as a clickable link on each row.',
                   'Amounts display in your currency of choice, € or $ (Settings).',
                   'Arrival notifications fire for every site you hold valid vouchers for, not just one.',
                   'Duplicate detection is per site: the same code on two different sites is not a duplicate.',
@@ -228,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
       weekdays: ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'],
       helpSections: [
         { title: 'Ajouter un bon',
-          text: 'Appuyez sur le bouton + pour ouvrir le formulaire, puis saisissez le nom du site, son URL, le code du bon (facultatif), sa valeur (facultative) et sa date d\u2019expiration, et appuyez sur Ajouter. Le nom du site se compl\u00e8te automatiquement parmi les sites d\u00e9j\u00e0 utilis\u00e9s ; le format de date est AAAA-MM-JJ, utilisez le bouton calendrier pour choisir une date. Si vous fermez le popup en cours de saisie, votre progression est restaur\u00e9e \u00e0 la r\u00e9ouverture.',
+          text: 'Appuyez sur le bouton + pour ouvrir le formulaire, puis saisissez l\u2019URL du site (le nom du site s\u2019y remplit automatiquement et reste modifiable), le code du bon (facultatif), sa valeur (facultative) et sa date d\u2019expiration, et appuyez sur Ajouter. Le format de date est AAAA-MM-JJ, utilisez le bouton calendrier pour choisir une date. Si vous fermez le popup en cours de saisie, votre progression est restaur\u00e9e \u00e0 la r\u00e9ouverture.',
           items: [] },
         { title: 'G\u00e9rer les bons',
           text: '',
@@ -251,7 +256,8 @@ document.addEventListener('DOMContentLoaded', function() {
         { version: '1.0.0',
           items: ['Premi\u00e8re version : suivez vos bons et cartes cadeaux pour tous vos sites.',
                   'Les bons portent un nom de site et une URL ; le code et la valeur sont facultatifs.',
-                  'Les noms de site se compl\u00e8tent automatiquement et s\u2019affichent sous forme de lien cliquable sur chaque ligne.',
+                  'Saisissez d\u2019abord l\u2019URL du site : le nom du site en est d\u00e9duit, reprenant celui que vous utilisez d\u00e9j\u00e0 pour ce site, et reste modifiable.',
+                  'Le nom du site s\u2019affiche sous forme de lien cliquable sur chaque ligne.',
                   'Les montants s\u2019affichent dans la devise de votre choix, \u20ac ou $ (param\u00e8tres).',
                   'La notification d\u2019arriv\u00e9e se d\u00e9clenche pour chaque site o\u00f9 vous avez des bons valides, pas seulement un.',
                   'Les doublons sont d\u00e9tect\u00e9s par site : le m\u00eame code sur deux sites diff\u00e9rents n\u2019est pas un doublon.',
@@ -718,6 +724,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const draft = data.draft;
       if (!draft) return;
       siteNameInput.value = draft.siteName || '';
+      siteNameAuto = false;
       siteUrlInput.value = draft.siteUrl || '';
       document.getElementById('voucherCode').value = draft.code || '';
       valueInput.value = draft.value || '';
@@ -900,6 +907,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!voucher) return;
       editingId = id;
       siteNameInput.value = voucher.siteName || '';
+      siteNameAuto = false;
       siteUrlInput.value = voucher.siteUrl || '';
       document.getElementById('voucherCode').value = voucher.code || '';
       valueInput.value = (voucher.amount !== undefined && voucher.amount !== null)
@@ -1174,8 +1182,14 @@ document.addEventListener('DOMContentLoaded', function() {
   function updateSiteList(vouchers) {
     const seen = new Set();
     const frag = document.createDocumentFragment();
+    knownSiteNames = {};
     vouchers.forEach(function(voucher) {
-      if (!voucher.siteName || seen.has(voucher.siteName)) return;
+      if (!voucher.siteName) return;
+      const host = voucher.siteUrl ? siteHost(voucher.siteUrl) : null;
+      if (host && knownSiteNames[host] === undefined) {
+        knownSiteNames[host] = voucher.siteName;
+      }
+      if (seen.has(voucher.siteName)) return;
       seen.add(voucher.siteName);
       const opt = document.createElement('option');
       opt.value = voucher.siteName;
@@ -1184,6 +1198,37 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     siteList.replaceChildren(frag);
   }
+
+  // Readable name for a hostname: 'deduced-shop.fr' -> 'Deduced Shop'.
+  // The label before the TLD is used, stepping over second-level
+  // registry suffixes like co.uk (the www prefix is already gone)
+  function prettyHost(host) {
+    const labels = host.split('.');
+    let idx = labels.length - 2;
+    if (labels.length >= 3 &&
+        ['co', 'com', 'org', 'net', 'gov', 'ac'].indexOf(labels[idx]) >= 0) {
+      idx = labels.length - 3;
+    }
+    const label = labels[idx] || host;
+    return label.split(/[-.]/).map(function(word) {
+      return word ? word.charAt(0).toUpperCase() + word.slice(1) : '';
+    }).join(' ');
+  }
+
+  // URL-first: typing the URL prefills the site name, reusing the
+  // name already used for that host; a hand-typed name always wins
+  siteUrlInput.addEventListener('input', function() {
+    const typed = siteUrlInput.value.trim();
+    const site = typed ? parseSiteUrl(typed) : null;
+    if (!site) return;
+    if (siteNameInput.value.trim() !== '' && !siteNameAuto) return;
+    siteNameInput.value = knownSiteNames[site.host] || prettyHost(site.host);
+    siteNameAuto = true;
+  });
+
+  siteNameInput.addEventListener('input', function() {
+    siteNameAuto = false;
+  });
 
   // Delete is a two-step action: first click arms the button,
   // a second click within a few seconds confirms

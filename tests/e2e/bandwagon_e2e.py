@@ -973,6 +973,47 @@ def popup_tests(s):
               rec.get("siteUrl") == "https://" + NOSCHEME_URL
               and len(st["items"]) == 4, rec)
 
+        # URL-first: the form asks for the URL before the site name
+        order = s.page_js(
+            "return document.getElementById('siteUrl').closest('.form-group')"
+            ".compareDocumentPosition("
+            "  document.getElementById('siteName').closest('.form-group'));")
+        check("site: the URL field comes before the site name",
+              order == 4, order)
+
+        # a typed URL prefills a deduced, editable site name
+        s.page_js("if (document.getElementById('addVoucherForm').hidden)"
+                  "  document.getElementById('addToggleBtn').click();"
+                  "return 'ok';")
+        deduced = s.page_js(
+            "var n = document.getElementById('siteName'); n.value = '';"
+            "var u = document.getElementById('siteUrl');"
+            "u.value = 'www.deduced-shop.fr';"
+            "u.dispatchEvent(new Event('input', {bubbles: true}));"
+            "return n.value;")
+        check("site: a typed URL prefills a deduced site name",
+              deduced == "Deduced Shop", deduced)
+        kept = s.page_js(
+            "var n = document.getElementById('siteName');"
+            "n.value = 'My Own Shop';"
+            "n.dispatchEvent(new Event('input', {bubbles: true}));"
+            "var u = document.getElementById('siteUrl');"
+            "u.value = 'www.other-name-shop.com';"
+            "u.dispatchEvent(new Event('input', {bubbles: true}));"
+            "return n.value;")
+        check("site: a hand-typed site name is never overwritten",
+              kept == "My Own Shop", kept)
+        reused = s.page_js(
+            "var n = document.getElementById('siteName');"
+            "n.value = '';"
+            "n.dispatchEvent(new Event('input', {bubbles: true}));"
+            "var u = document.getElementById('siteUrl');"
+            "u.value = 'www.example-shop.com';"
+            "u.dispatchEvent(new Event('input', {bubbles: true}));"
+            "return n.value;")
+        check("site: the name already used for a known site is reused",
+              reused == SITE_NAME, reused)
+
         # ---- remove expired: bulk-clear button with the same two-step
         # confirm as the single delete ----
         def remove_expired_btn():

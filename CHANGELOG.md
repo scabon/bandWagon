@@ -18,7 +18,8 @@ When releasing a new version:
 
 - First release: keep track of vouchers and gift cards for any site.
 - Vouchers carry a site name and URL; the code and the value are optional.
-- Site names autocomplete from known sites and render as a clickable link on each row.
+- Enter the site URL first: the site name is deduced from it, reusing the name you already use for that site, and stays editable.
+- Site names render as a clickable link on each row.
 - Amounts display in your currency of choice, € or $ (Settings).
 - Arrival notifications fire for every site you hold valid vouchers for, not just one.
 - Duplicate detection is per site: the same code on two different sites is not a duplicate.
