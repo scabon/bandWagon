@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
-        { version: '0.1.0',
+        { version: '1.0.0',
           items: ['First release: keep track of vouchers and gift cards for any site.',
                   'Vouchers carry a site name and URL; the code and the euro value are optional.',
                   'Site names autocomplete from known sites and render as a clickable link on each row.',
@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
-        { version: '0.1.0',
+        { version: '1.0.0',
           items: ['Premi\u00e8re version : suivez vos bons et cartes cadeaux pour tous vos sites.',
                   'Les bons portent un nom de site et une URL ; le code et la valeur en euros sont facultatifs.',
                   'Les noms de site se compl\u00e8tent automatiquement et s\u2019affichent sous forme de lien cliquable sur chaque ligne.',
