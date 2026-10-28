@@ -510,6 +510,8 @@ def codes_of(st):
 
 def popup_add(s, code, date, value=None, site_name=SITE_NAME,
               site_url=SITE_URL):
+    if site_url is None:
+        site_url = ""
     # the add form is collapsed by default, like for a real user
     s.page_js(
         "if (document.getElementById('addVoucherForm').hidden)"
@@ -1013,6 +1015,31 @@ def popup_tests(s):
             "return n.value;")
         check("site: the name already used for a known site is reused",
               reused == SITE_NAME, reused)
+
+        # the URL is optional: a voucher can be for a local merchant
+        popup_add(s, "E2E-NOURL-1", "2027-09-03",
+                  site_name="Local Merchant", site_url=None)
+        time.sleep(0.6)
+        st = pstate(s)
+        rec = next(v for v in st["store"] if v.get("code") == "E2E-NOURL-1")
+        check("site: a voucher without URL is accepted (no siteUrl key)",
+              "siteUrl" not in rec and len(st["items"]) == 5, rec)
+        tag = s.page_js(
+            "var rows = document.querySelectorAll('.voucher-item');"
+            "for (var i = 0; i < rows.length; i++) {"
+            "  var n = rows[i].querySelector('.site-name');"
+            "  if (n && n.textContent === 'Local Merchant') return n.tagName; }"
+            "return 'not found';")
+        check("site: a voucher without URL renders as a plain label",
+              tag == "SPAN", tag)
+        popup_add(s, "E2E-NOURL-1", "2027-09-04",
+                  site_name="local merchant", site_url=None)
+        time.sleep(0.6)
+        st = pstate(s)
+        check("site: same code and name without URL is a duplicate",
+              len(st["items"]) == 5
+              and "already exists for this site" in st["status"]["text"],
+              st["status"])
 
         # ---- remove expired: bulk-clear button with the same two-step
         # confirm as the single delete ----

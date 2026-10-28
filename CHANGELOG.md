@@ -17,7 +17,7 @@ When releasing a new version:
 ## [1.0.0] — 2026-10-28
 
 - First release: keep track of vouchers and gift cards for any site.
-- Vouchers carry a site name and URL; the code and the value are optional.
+- Vouchers carry a site name; the URL, code and value are all optional (a voucher can be for a local merchant with no website).
 - Enter the site URL first: the site name is deduced from it, reusing the name you already use for that site, and stays editable.
 - Site names render as a clickable link on each row.
 - Amounts display in your currency of choice, € or $ (Settings).

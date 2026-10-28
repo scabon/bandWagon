@@ -6,8 +6,8 @@
 {
   "id": "v-1731712323-abc",        // unique id (timestamp + counter)
   "siteName": "SNCF Connect",      // display name, free text
-  "siteUrl": "https://www.sncf-connect.com",  // canonical site URL (clickable,
-                                              // used for arrival-notification matching)
+  "siteUrl": "https://www.sncf-connect.com",  // canonical site URL (optional;
+                                              // clickable, used for arrival matching)
   "code": "ABC123XYZ",             // voucher code (optional)
   "value": 25,                     // value in euros (optional, nullable)
   "expiryDate": "2027-01-15"       // YYYY-MM-DD, parsed as local midnight
@@ -18,9 +18,12 @@
 
 - `siteName` / `siteUrl` are new. `siteUrl` is normalized (scheme stripped
   or added, trailing slash removed, `www.` ignored) so that two entries
-  for the same site match.
+  for the same site match. The URL is optional (a voucher can be for
+  a local merchant with no website); URL-less vouchers simply never match
+  arrival notifications.
 - `code` becomes optional (a store-credit voucher may have no code).
-- Duplicate detection becomes: same `code` **and** same site (a code is only
+- Duplicate detection becomes: same `code` **and** same site (the URL host
+  when present, the site name for URL-less vouchers; a code is only
   unique within a site).
 
 ## Derived collections

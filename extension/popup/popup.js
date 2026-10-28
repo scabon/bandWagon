@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
       addToggleTitle: 'Add a voucher',
       siteLabel: 'Site:',
       sitePlaceholder: 'e.g., Amazon',
-      siteUrlLabel: 'Site URL:',
+      siteUrlLabel: 'Site URL (optional):',
       siteUrlPlaceholder: 'e.g., www.amazon.fr',
       codeLabel: 'Code (optional):',
       codePlaceholder: 'e.g., ABC123XYZ',
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
       weekdays: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
       helpSections: [
         { title: 'Adding a voucher',
-          text: 'Press the + button to open the form, then enter the site URL (the site name fills in automatically from it and stays editable), the voucher code (optional), its value (optional) and its expiration date, and press Add Voucher. The date format is YYYY-MM-DD, use the calendar button to pick a date. If you close the popup mid-entry, your progress is restored when you reopen it.',
+          text: 'Press the + button to open the form, then enter the site URL (optional: when given, the site name fills in automatically from it and stays editable; leave it empty for a local merchant with no website), the voucher code (optional), its value (optional) and its expiration date, and press Add Voucher. The date format is YYYY-MM-DD, use the calendar button to pick a date. If you close the popup mid-entry, your progress is restored when you reopen it.',
           items: [] },
         { title: 'Managing vouchers',
           text: '',
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
       changelogEntries: [
         { version: '1.0.0',
           items: ['First release: keep track of vouchers and gift cards for any site.',
-                  'Vouchers carry a site name and URL; the code and the value are optional.',
+                  'Vouchers carry a site name; the URL, code and value are all optional (a voucher can be for a local merchant with no website).',
                   'Enter the site URL first: the site name is deduced from it, reusing the name you already use for that site, and stays editable.',
                   'Site names render as a clickable link on each row.',
                   'Amounts display in your currency of choice, € or $ (Settings).',
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
       addToggleTitle: 'Ajouter un bon',
       siteLabel: 'Site :',
       sitePlaceholder: 'ex. Amazon',
-      siteUrlLabel: 'URL du site :',
+      siteUrlLabel: 'URL du site (facultatif) :',
       siteUrlPlaceholder: 'ex. www.amazon.fr',
       codeLabel: 'Code (facultatif) :',
       codePlaceholder: 'ex. ABC123XYZ',
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
       weekdays: ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'],
       helpSections: [
         { title: 'Ajouter un bon',
-          text: 'Appuyez sur le bouton + pour ouvrir le formulaire, puis saisissez l\u2019URL du site (le nom du site s\u2019y remplit automatiquement et reste modifiable), le code du bon (facultatif), sa valeur (facultative) et sa date d\u2019expiration, et appuyez sur Ajouter. Le format de date est AAAA-MM-JJ, utilisez le bouton calendrier pour choisir une date. Si vous fermez le popup en cours de saisie, votre progression est restaur\u00e9e \u00e0 la r\u00e9ouverture.',
+          text: 'Appuyez sur le bouton + pour ouvrir le formulaire, puis saisissez l\u2019URL du site (facultative : si fournie, le nom du site s\u2019y remplit automatiquement et reste modifiable ; laissez-la vide pour un commer\u00e7ant local sans site web), le code du bon (facultatif), sa valeur (facultative) et sa date d\u2019expiration, et appuyez sur Ajouter. Le format de date est AAAA-MM-JJ, utilisez le bouton calendrier pour choisir une date. Si vous fermez le popup en cours de saisie, votre progression est restaur\u00e9e \u00e0 la r\u00e9ouverture.',
           items: [] },
         { title: 'G\u00e9rer les bons',
           text: '',
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
       changelogEntries: [
         { version: '1.0.0',
           items: ['Premi\u00e8re version : suivez vos bons et cartes cadeaux pour tous vos sites.',
-                  'Les bons portent un nom de site et une URL ; le code et la valeur sont facultatifs.',
+                  'Les bons portent un nom de site ; l\u2019URL, le code et la valeur sont tous facultatifs (un bon peut \u00eatre pour un commer\u00e7ant local sans site web).',
                   'Saisissez d\u2019abord l\u2019URL du site : le nom du site en est d\u00e9duit, reprenant celui que vous utilisez d\u00e9j\u00e0 pour ce site, et reste modifiable.',
                   'Le nom du site s\u2019affiche sous forme de lien cliquable sur chaque ligne.',
                   'Les montants s\u2019affichent dans la devise de votre choix, \u20ac ou $ (param\u00e8tres).',
@@ -766,7 +766,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    if (!siteName || !site || !rawDate) {
+    if (!siteName || !rawDate) {
       showStatus(t('errFillRequired'), 'error');
       return;
     }
@@ -796,7 +796,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (editingId) {
         // Update the edited voucher (its own code doesn't count as duplicate)
         const duplicate = vouchers.some(v => v.id !== editingId &&
-                                              isDuplicate(v, site, code));
+                                              isDuplicate(v, site, siteName, code));
         if (duplicate) {
           showStatus(t('errDuplicate'), 'error');
           return;
@@ -807,7 +807,8 @@ document.addEventListener('DOMContentLoaded', function() {
           return;
         }
         edited.siteName = siteName;
-        edited.siteUrl = site.url;
+        if (site) edited.siteUrl = site.url;
+        else delete edited.siteUrl;
         if (code) edited.code = code;
         else delete edited.code;
         edited.expiryDate = expiryDate;
@@ -825,7 +826,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Add new voucher
 
       // Check for duplicate (same code on the same site)
-      const exists = vouchers.some(v => isDuplicate(v, site, code));
+      const exists = vouchers.some(v => isDuplicate(v, site, siteName, code));
       if (exists) {
         showStatus(t('errDuplicate'), 'error');
         return;
@@ -834,12 +835,12 @@ document.addEventListener('DOMContentLoaded', function() {
       const newVoucher = {
         id: Date.now().toString(),
         siteName: siteName,
-        siteUrl: site.url,
         expiryDate: expiryDate,
         createdAt: new Date().toISOString()
       };
-      // The code and the euro value are optional: vouchers without
+      // The URL, code and value are all optional: vouchers without
       // them carry no key
+      if (site) newVoucher.siteUrl = site.url;
       if (code) newVoucher.code = code;
       if (amount !== null) newVoucher.amount = amount;
 
@@ -895,9 +896,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Two vouchers collide only when they carry the same code for the
   // same site: a code is unique within a site, not across sites
-  function isDuplicate(voucher, site, code) {
+  // Duplicates key on the URL host when a URL is given, otherwise on
+  // the site name (URL-less vouchers never collide with URL'd ones)
+  function isDuplicate(voucher, site, siteName, code) {
     if (!code || !voucher.code) return false;
-    return voucher.code === code && siteHost(voucher.siteUrl) === site.host;
+    if (voucher.code !== code) return false;
+    if (site) return siteHost(voucher.siteUrl) === site.host;
+    return !voucher.siteUrl &&
+           (voucher.siteName || '').toLowerCase() === siteName.toLowerCase();
   }
 
   // Editing: load a voucher into the form, or leave edit mode
@@ -1130,10 +1136,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       const info = buildNode('div');
-      const siteLine = document.createElement('a');
-      siteLine.href = voucher.siteUrl || '#';
-      siteLine.target = '_blank';
-      siteLine.rel = 'noopener noreferrer';
+      // No URL (a local merchant): a plain label, not a link
+      const siteLine = document.createElement(voucher.siteUrl ? 'a' : 'span');
+      if (voucher.siteUrl) {
+        siteLine.href = voucher.siteUrl;
+        siteLine.target = '_blank';
+        siteLine.rel = 'noopener noreferrer';
+      }
       siteLine.className = 'site-name';
       siteLine.textContent = voucher.siteName || voucher.siteUrl || '';
       info.appendChild(siteLine);
