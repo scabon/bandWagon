@@ -258,6 +258,11 @@ input[type="date"]:focus {
   background-color: #0052a3;
 }
 
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btn-danger {
   background-color: #dc3545;
   color: white;

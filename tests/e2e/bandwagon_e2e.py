@@ -512,6 +512,10 @@ def popup_add(s, code, date, value=None, site_name=SITE_NAME,
               site_url=SITE_URL):
     if site_url is None:
         site_url = ""
+    if date is None:
+        date = ""
+    if code is None:
+        code = ""
     # the add form is collapsed by default, like for a real user
     s.page_js(
         "if (document.getElementById('addVoucherForm').hidden)"
@@ -598,7 +602,7 @@ def popup_tests(s):
         check("popup: site autocomplete empty with no vouchers",
               sites == [], sites)
 
-        popup_add(s, "", "")  # empty fields -> inline error, no native alert
+        popup_add(s, "", "", site_name="", site_url=None)  # no name -> inline error
         time.sleep(0.5)
         st = pstate(s)
         check("popup: empty submit shows inline error, no native dialog",
@@ -1776,6 +1780,51 @@ def popup_tests(s):
               and tomb.get("by") == st["deviceId"]
               and st["total"] == "1",
               (st["syncStore"], st["total"]))
+
+        # ---- only the site name is required ----
+        # the Add button is greyed out until a name identifies the voucher
+        s.page_js("if (document.getElementById('addVoucherForm').hidden)"
+                  "  document.getElementById('addToggleBtn').click();"
+                  "document.getElementById('addVoucherForm').reset();"
+                  "var n = document.getElementById('siteName');"
+                  "n.value = '';"
+                  "n.dispatchEvent(new Event('input', {bubbles: true}));"
+                  "return 'ok';")
+        check("form: the Add button is disabled with no site name",
+              s.page_js("return document.getElementById('submitBtn')"
+                        ".disabled;") is True)
+        check("form: the Add button enables as soon as a name exists",
+              s.page_js(
+                  "var n = document.getElementById('siteName');"
+                  "n.value = 'Corner Bakery';"
+                  "n.dispatchEvent(new Event('input', {bubbles: true}));"
+                  "return document.getElementById('submitBtn').disabled;")
+              is False)
+
+        # a name-only voucher (no URL, code, value or date) is valid
+        before = pstate(s)
+        popup_add(s, None, None, site_name="Corner Bakery", site_url=None)
+        time.sleep(0.6)
+        after = pstate(s)
+        rec = next(v for v in after["store"]
+                   if v.get("siteName") == "Corner Bakery")
+        check("optional: a name-only voucher is stored (no optional keys)",
+              "siteUrl" not in rec and "code" not in rec
+              and "amount" not in rec and "expiryDate" not in rec, rec)
+        check("optional: a name-only voucher counts as valid",
+              int(after["valid"]) == int(before["valid"]) + 1,
+              (before["valid"], after["valid"]))
+        expiry_line = s.page_js(
+            "var rows = document.querySelectorAll('.voucher-item');"
+            "for (var i = 0; i < rows.length; i++) {"
+            "  if (rows[i].textContent.indexOf('Corner Bakery') === 0)"
+            "    return rows[i].querySelector('.expiry') !== null; }"
+            "return 'not found';")
+        check("optional: a voucher without expiry shows no expiry line",
+              expiry_line is False, expiry_line)
+        check("form: the Add button is disabled again after a submit",
+              s.page_js("return document.getElementById('submitBtn')"
+                        ".disabled;") is True)
     finally:
         if httpd:
             httpd.shutdown()

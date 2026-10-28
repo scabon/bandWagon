@@ -149,14 +149,16 @@
       notifiedTabs.add(tabId);
 
       // Oldest-first sort from getValidVouchers: the first expiry is
-      // the nearest one
-      const soonest = valid[0].expiryDate;
+      // the nearest one. Vouchers without an expiry date (valid
+      // indefinitely) don't constrain the nearest expiry.
+      const dated = valid.filter(v => v.expiryDate);
+      const soonest = dated.length > 0 ? dated[0].expiryDate : null;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       // Parse as local midnight, same as getValidVouchers in
       // background.js (a date-only string reads as UTC otherwise)
-      const daysLeft = Math.round(
-          (new Date(soonest + 'T00:00:00') - today) / DAY_MS);
+      const daysLeft = soonest ? Math.round(
+          (new Date(soonest + 'T00:00:00') - today) / DAY_MS) : null;
       const lang = resolveLanguage(settings.language);
       const site = watchedSites.get(siteKey) || siteKey;
       let iconUrl = 'icons/icon-128.png';

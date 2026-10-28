@@ -9,11 +9,13 @@ function getValidVouchers() {
     now.setHours(0, 0, 0, 0);
 
     return vouchers.filter(v => {
+      // No expiry date: valid indefinitely
+      if (!v.expiryDate) return true;
       // Parse as local midnight (a date-only string would be read as UTC
       // and a voucher expiring today could look already expired)
       const expiryDate = new Date(v.expiryDate + 'T00:00:00');
       return expiryDate >= now;
-    }).sort((a, b) => a.expiryDate.localeCompare(b.expiryDate));
+    }).sort((a, b) => (a.expiryDate || '9999').localeCompare(b.expiryDate || '9999'));
   });
 }
 

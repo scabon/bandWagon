@@ -11,6 +11,8 @@
   "code": "ABC123XYZ",             // voucher code (optional)
   "value": 25,                     // value in euros (optional, nullable)
   "expiryDate": "2027-01-15"       // YYYY-MM-DD, parsed as local midnight
+                                              // (optional: no expiry = valid
+                                              //  indefinitely, no expiry reminders)
 }
 ```
 
@@ -22,6 +24,10 @@
   a local merchant with no website); URL-less vouchers simply never match
   arrival notifications.
 - `code` becomes optional (a store-credit voucher may have no code).
+- `siteUrl` and `expiryDate` are optional too: a voucher can be just a
+  merchant name. No URL means no arrival matching and no link on the
+  row; no expiry date means valid indefinitely (counted in the badge,
+  never expired, sorted last, no expiry reminders).
 - Duplicate detection becomes: same `code` **and** same site (the URL host
   when present, the site name for URL-less vouchers; a code is only
   unique within a site).

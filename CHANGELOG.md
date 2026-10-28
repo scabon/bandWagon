@@ -17,9 +17,10 @@ When releasing a new version:
 ## [1.0.0] — 2026-10-28
 
 - First release: keep track of vouchers and gift cards for any site.
-- Vouchers carry a site name; the URL, code and value are all optional (a voucher can be for a local merchant with no website).
+- Only the site name is required: the URL, code, value and expiry date are all optional (a voucher can be just the name of a local merchant).
 - Enter the site URL first: the site name is deduced from it, reusing the name you already use for that site, and stays editable.
 - Site names render as a clickable link on each row.
+- The Add button stays greyed out until a site name is typed.
 - Amounts display in your currency of choice, € or $ (Settings).
 - Arrival notifications fire for every site you hold valid vouchers for, not just one.
 - Duplicate detection is per site: the same code on two different sites is not a duplicate.

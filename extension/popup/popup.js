@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
       valueLabel: 'Value',
       valuePlaceholder: 'e.g., 25',
       errValue: 'Enter a value (e.g., 25).',
-      expiryLabel: 'Expiration Date:',
+      expiryLabel: 'Expiration Date (optional):',
       calendarAria: 'Pick a date from the calendar',
       calendarTitle: 'Pick a date',
       addVoucher: 'Add Voucher',
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
       settingsLeadDays: 'Expiry reminder (days before)',
       settingsLeadDaysHint: 'Notify me this many days before a voucher expires',
       errSiteUrl: 'Enter a valid site URL (e.g., www.amazon.fr).',
-      errFillRequired: 'Please fill in the site, its URL and the expiration date.',
+      errFillRequired: 'Please fill in the site name.',
       errValidDate: 'Enter a valid expiration date (YYYY-MM-DD).',
       errPastDate: 'The expiration date is in the past.',
       errDuplicate: 'A voucher with this code already exists for this site!',
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
       weekdays: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
       helpSections: [
         { title: 'Adding a voucher',
-          text: 'Press the + button to open the form, then enter the site URL (optional: when given, the site name fills in automatically from it and stays editable; leave it empty for a local merchant with no website), the voucher code (optional), its value (optional) and its expiration date, and press Add Voucher. The date format is YYYY-MM-DD, use the calendar button to pick a date. If you close the popup mid-entry, your progress is restored when you reopen it.',
+          text: 'Press the + button to open the form, then enter the site URL (optional: when given, the site name fills in automatically from it and stays editable; leave it empty for a local merchant with no website), the voucher code (optional), its value (optional) and its expiration date (optional too), and press Add Voucher. The date format is YYYY-MM-DD, use the calendar button to pick a date. If you close the popup mid-entry, your progress is restored when you reopen it.',
           items: [] },
         { title: 'Managing vouchers',
           text: '',
@@ -142,9 +142,10 @@ document.addEventListener('DOMContentLoaded', function() {
       changelogEntries: [
         { version: '1.0.0',
           items: ['First release: keep track of vouchers and gift cards for any site.',
-                  'Vouchers carry a site name; the URL, code and value are all optional (a voucher can be for a local merchant with no website).',
+                  'Only the site name is required: the URL, code, value and expiry date are all optional (a voucher can be just the name of a local merchant).',
                   'Enter the site URL first: the site name is deduced from it, reusing the name you already use for that site, and stays editable.',
                   'Site names render as a clickable link on each row.',
+                  'The Add button stays greyed out until a site name is typed.',
                   'Amounts display in your currency of choice, € or $ (Settings).',
                   'Arrival notifications fire for every site you hold valid vouchers for, not just one.',
                   'Duplicate detection is per site: the same code on two different sites is not a duplicate.',
@@ -181,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
       valueLabel: 'Valeur',
       valuePlaceholder: 'ex. 25',
       errValue: 'Saisissez une valeur (ex. 25).',
-      expiryLabel: 'Date d\u2019expiration :',
+      expiryLabel: 'Date d\u2019expiration (facultatif) :',
       calendarAria: 'Choisir une date dans le calendrier',
       calendarTitle: 'Choisir une date',
       addVoucher: 'Ajouter',
@@ -215,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
       settingsLeadDays: 'Rappel d\u2019expiration (jours avant)',
       settingsLeadDaysHint: 'M\u2019alerter ce nombre de jours avant l\u2019expiration d\u2019un bon',
       errSiteUrl: 'Saisissez une URL de site valide (ex. www.amazon.fr).',
-      errFillRequired: 'Veuillez renseigner le site, son URL et la date d\u2019expiration.',
+      errFillRequired: 'Veuillez saisir le nom du site.',
       errValidDate: 'Saisissez une date d\u2019expiration valide (AAAA-MM-JJ).',
       errPastDate: 'La date d\u2019expiration est dans le pass\u00e9.',
       errDuplicate: 'Un bon avec ce code existe d\u00e9j\u00e0 pour ce site !',
@@ -233,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
       weekdays: ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'],
       helpSections: [
         { title: 'Ajouter un bon',
-          text: 'Appuyez sur le bouton + pour ouvrir le formulaire, puis saisissez l\u2019URL du site (facultative : si fournie, le nom du site s\u2019y remplit automatiquement et reste modifiable ; laissez-la vide pour un commer\u00e7ant local sans site web), le code du bon (facultatif), sa valeur (facultative) et sa date d\u2019expiration, et appuyez sur Ajouter. Le format de date est AAAA-MM-JJ, utilisez le bouton calendrier pour choisir une date. Si vous fermez le popup en cours de saisie, votre progression est restaur\u00e9e \u00e0 la r\u00e9ouverture.',
+          text: 'Appuyez sur le bouton + pour ouvrir le formulaire, puis saisissez l\u2019URL du site (facultative : si fournie, le nom du site s\u2019y remplit automatiquement et reste modifiable ; laissez-la vide pour un commer\u00e7ant local sans site web), le code du bon (facultatif), sa valeur (facultative) et sa date d\u2019expiration (facultative elle aussi), et appuyez sur Ajouter. Le format de date est AAAA-MM-JJ, utilisez le bouton calendrier pour choisir une date. Si vous fermez le popup en cours de saisie, votre progression est restaur\u00e9e \u00e0 la r\u00e9ouverture.',
           items: [] },
         { title: 'G\u00e9rer les bons',
           text: '',
@@ -255,9 +256,10 @@ document.addEventListener('DOMContentLoaded', function() {
       changelogEntries: [
         { version: '1.0.0',
           items: ['Premi\u00e8re version : suivez vos bons et cartes cadeaux pour tous vos sites.',
-                  'Les bons portent un nom de site ; l\u2019URL, le code et la valeur sont tous facultatifs (un bon peut \u00eatre pour un commer\u00e7ant local sans site web).',
+                  'Seul le nom du site est requis : l\u2019URL, le code, la valeur et la date d\u2019expiration sont tous facultatifs (un bon peut n\u2019\u00eatre que le nom d\u2019un commer\u00e7ant local).',
                   'Saisissez d\u2019abord l\u2019URL du site : le nom du site en est d\u00e9duit, reprenant celui que vous utilisez d\u00e9j\u00e0 pour ce site, et reste modifiable.',
                   'Le nom du site s\u2019affiche sous forme de lien cliquable sur chaque ligne.',
+                  'Le bouton Ajouter reste gris\u00e9 tant qu\u2019aucun nom de site n\u2019est saisi.',
                   'Les montants s\u2019affichent dans la devise de votre choix, \u20ac ou $ (param\u00e8tres).',
                   'La notification d\u2019arriv\u00e9e se d\u00e9clenche pour chaque site o\u00f9 vous avez des bons valides, pas seulement un.',
                   'Les doublons sont d\u00e9tect\u00e9s par site : le m\u00eame code sur deux sites diff\u00e9rents n\u2019est pas un doublon.',
@@ -729,6 +731,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('voucherCode').value = draft.code || '';
       valueInput.value = draft.value || '';
       expiryInput.value = draft.date || '';
+      updateSubmitEnabled();
       updateGhost();
       // Edit mode only if the voucher still exists (it may have been
       // deleted from another device while the popup was closed)
@@ -766,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    if (!siteName || !rawDate) {
+    if (!siteName) {
       showStatus(t('errFillRequired'), 'error');
       return;
     }
@@ -776,8 +779,8 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    const expiryDate = parseDateInput(rawDate);
-    if (!expiryDate) {
+    const expiryDate = rawDate ? parseDateInput(rawDate) : null;
+    if (rawDate && !expiryDate) {
       showStatus(t('errValidDate'), 'error');
       return;
     }
@@ -785,7 +788,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // A voucher that expires today is still valid, anything earlier is not
     const now = new Date();
     const today = toISO(now.getFullYear(), now.getMonth() + 1, now.getDate());
-    if (expiryDate < today) {
+    if (expiryDate && expiryDate < today) {
       showStatus(t('errPastDate'), 'error');
       return;
     }
@@ -811,10 +814,11 @@ document.addEventListener('DOMContentLoaded', function() {
         else delete edited.siteUrl;
         if (code) edited.code = code;
         else delete edited.code;
-        edited.expiryDate = expiryDate;
+        if (expiryDate) edited.expiryDate = expiryDate;
+        else delete edited.expiryDate;
         if (amount === null) delete edited.amount;
         else edited.amount = amount;
-        vouchers.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+        vouchers.sort((a, b) => expiryKey(a) - expiryKey(b));
         browser.storage.local.set({ vouchers: vouchers }).then(function() {
           cancelEdit();
           loadVouchers();
@@ -835,24 +839,26 @@ document.addEventListener('DOMContentLoaded', function() {
       const newVoucher = {
         id: Date.now().toString(),
         siteName: siteName,
-        expiryDate: expiryDate,
         createdAt: new Date().toISOString()
       };
       // The URL, code and value are all optional: vouchers without
       // them carry no key
       if (site) newVoucher.siteUrl = site.url;
+      if (expiryDate) newVoucher.expiryDate = expiryDate;
       if (code) newVoucher.code = code;
       if (amount !== null) newVoucher.amount = amount;
 
       vouchers.push(newVoucher);
 
       // Sort by expiry date (oldest first)
-      vouchers.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+      vouchers.sort((a, b) => expiryKey(a) - expiryKey(b));
 
       browser.storage.local.set({ vouchers: vouchers }).then(function() {
         clearStatus();
         addVoucherForm.reset();
         closeCalendar();
+        addVoucherForm.reset(); // next open starts a clean form
+        updateSubmitEnabled();
         updateGhost();
         setFormOpen(false); // added: back to the compact list view
         clearDraft(); // submitted: nothing to restore next time
@@ -918,7 +924,8 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('voucherCode').value = voucher.code || '';
       valueInput.value = (voucher.amount !== undefined && voucher.amount !== null)
           ? String(voucher.amount) : '';
-      expiryInput.value = voucher.expiryDate;
+      expiryInput.value = voucher.expiryDate || '';
+      updateSubmitEnabled();
       updateGhost();
       submitBtn.textContent = t('updateVoucher');
       cancelEditBtn.hidden = false;
@@ -931,6 +938,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function cancelEdit() {
     editingId = null;
     addVoucherForm.reset();
+    updateSubmitEnabled();
     updateGhost();
     submitBtn.textContent = t('addVoucher');
     cancelEditBtn.hidden = true;
@@ -1095,10 +1103,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const av = (a.amount === undefined || a.amount === null) ? -1 : a.amount;
         const bv = (b.amount === undefined || b.amount === null) ? -1 : b.amount;
         if (av !== bv) return bv - av;
-        return new Date(a.expiryDate) - new Date(b.expiryDate);
+        return expiryKey(a) - expiryKey(b);
       });
     } else {
-      sorted.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+      sorted.sort((a, b) => expiryKey(a) - expiryKey(b));
     }
 
     if (sorted.length === 0) {
@@ -1123,8 +1131,10 @@ document.addEventListener('DOMContentLoaded', function() {
       // Parse as local midnight: a date-only string would be read as UTC
       // and make a voucher expiring today look already expired depending
       // on the timezone
-      const expiryDate = new Date(voucher.expiryDate + 'T00:00:00');
-      const isValid = expiryDate >= now;
+      // No expiry date: the voucher is valid indefinitely
+      const expiryDate = voucher.expiryDate
+          ? new Date(voucher.expiryDate + 'T00:00:00') : null;
+      const isValid = !voucher.expiryDate || expiryDate >= now;
 
       if (isValid) {
         validCount++;
@@ -1153,7 +1163,10 @@ document.addEventListener('DOMContentLoaded', function() {
         info.appendChild(buildNode('div', 'amount',
                                   formatAmount(voucher.amount)));
       }
-      info.appendChild(buildNode('div', 'expiry', t('expiresPrefix') + formatDate(expiryDate)));
+      if (expiryDate) {
+        info.appendChild(buildNode('div', 'expiry',
+                                  t('expiresPrefix') + formatDate(expiryDate)));
+      }
 
       const editBtn = buildNode('button', 'btn btn-secondary edit-btn', t('edit'));
       editBtn.dataset.id = voucher.id;
@@ -1233,11 +1246,27 @@ document.addEventListener('DOMContentLoaded', function() {
     if (siteNameInput.value.trim() !== '' && !siteNameAuto) return;
     siteNameInput.value = knownSiteNames[site.host] || prettyHost(site.host);
     siteNameAuto = true;
+    updateSubmitEnabled();
   });
 
   siteNameInput.addEventListener('input', function() {
     siteNameAuto = false;
   });
+
+  // The site name is the only required field: the submit button
+  // stays greyed out until something identifies the voucher
+  function updateSubmitEnabled() {
+    submitBtn.disabled = siteNameInput.value.trim() === '';
+  }
+
+  siteNameInput.addEventListener('input', updateSubmitEnabled);
+
+  // Expiry sort key: vouchers without an expiry date (valid
+  // indefinitely) sort last
+  function expiryKey(v) {
+    return v.expiryDate
+        ? new Date(v.expiryDate + 'T00:00:00').getTime() : Infinity;
+  }
 
   // Delete is a two-step action: first click arms the button,
   // a second click within a few seconds confirms
