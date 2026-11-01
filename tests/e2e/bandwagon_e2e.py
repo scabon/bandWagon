@@ -620,6 +620,16 @@ def io_tests(s, url):
     s.page_js("document.getElementById('menuBtn').click(); return 'ok';")
     s.page_js("document.getElementById('menuSettings').click(); return 'ok';")
     time.sleep(0.3)
+
+    # Firefox only opens the file picker for a RENDERED input (hidden/display:none
+    # makes importBtn.click() a silent no-op) — check while the Settings view is
+    # visible, which is when the user actually clicks Import
+    fi = json.loads(s.page_js(
+        "var i = document.getElementById('importFileInput');"
+        "return JSON.stringify({rendered: !!(i && i.offsetParent !== null),"
+        " hidden: i.hidden});"))
+    check("io: the import file input is rendered (Firefox picker needs a visible input)",
+          fi["rendered"] is True and fi["hidden"] is False, fi)
     s.page_js("document.getElementById('exportBtn').click(); return 'ok';")
     time.sleep(0.6)
     exp = json.loads(s.page_js(
@@ -1440,8 +1450,8 @@ def popup_tests(s):
             " top: document.querySelector('#changelogContent ul li').textContent});"))
         check("menu: Changelog lists the version history",
               cl["hidden"] is False
-              and cl["versions"] == ["1.2.0", "1.1.0", "1.0.1", "1.0.0"]
-              and "Export your vouchers" in cl["top"], cl)
+              and cl["versions"] == ["1.2.1", "1.2.0", "1.1.0", "1.0.1", "1.0.0"]
+              and "Fixed: the Import file picker" in cl["top"], cl)
         s.page_js("document.querySelector('#view-changelog .back-btn').click(); return 'ok';")
 
         # language switch to French, from the Settings view

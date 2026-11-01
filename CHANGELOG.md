@@ -14,6 +14,10 @@ When releasing a new version:
 3. bump `"version"` in `extension/manifest.json` to match the new section;
 4. run `python tools/check-changelog.py`.
 
+## [1.2.1] — 2026-11-01
+
+- Fixed: the Import file picker did not open on Firefox — the file input was hidden, and Firefox only opens the picker for a rendered input (now rendered off-screen).
+
 ## [1.2.0] — 2026-11-01
 
 - Export your vouchers to a JSON file and import them back — the import accepts a bandWagon export or a bare voucher array (a site URL alone is enough, the site name is deduced from it).

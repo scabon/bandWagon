@@ -151,7 +151,9 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
-                        { version: '1.2.0',
+                                { version: '1.2.1',
+          items: ['Fixed: the Import file picker did not open on Firefox — the file input was hidden, and Firefox only opens the picker for a rendered input (now rendered off-screen).'] },
+{ version: '1.2.0',
           items: ['Export your vouchers to a JSON file and import them back — the import accepts a bandWagon export or a bare voucher array (a site URL alone is enough, the site name is deduced from it).',
                   'Duplicates (same code on the same site) are skipped on import, and the free 10-voucher limit applies to imports too.'] },
 { version: '1.1.0',
@@ -299,7 +301,9 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
-                        { version: '1.2.0',
+                                { version: '1.2.1',
+          items: ['Corrig\u00e9 : le s\u00e9lecteur de fichier de l\u2019import ne s\u2019ouvrait pas sur Firefox \u2014 l\u2019input \u00e9tait cach\u00e9, et Firefox n\u2019ouvre le s\u00e9lecteur que pour un input rendu (maintenant rendu hors \u00e9cran).'] },
+{ version: '1.2.0',
           items: ['Exportez vos bons dans un fichier JSON et r\u00e9importez-les \u2014 l\u2019import accepte un export bandWagon ou un simple tableau de bons (une URL de site suffit, le nom en est d\u00e9duit).',
                   'Les doublons (m\u00eame code sur le m\u00eame site) sont ignor\u00e9s \u00e0 l\u2019import, et la limite gratuite de 10 bons s\u2019applique aussi aux imports.'] },
 { version: '1.1.0',
