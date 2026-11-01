@@ -682,6 +682,22 @@ def io_tests(s, url):
           len(st["store"]) == 13 and "No valid voucher" in st["status"]["text"],
           st["status"])
 
+    # --- contract: a file exported by wagonBAR imports as-is ---
+    wb_export = {"app": "wagonBAR", "formatVersion": 1,
+                 "exportedAt": "2026-11-01T00:00:00.000Z", "vouchers": [
+        {"id": "wb-1", "code": "SNCF-ABC-1", "expiryDate": "2030-06-01",
+         "amount": 20, "createdAt": "2026-10-01T00:00:00.000Z",
+         "siteName": "SNCF Connect", "siteUrl": "https://www.sncf-connect.com"},
+    ]}
+    import_file(json.dumps(wb_export))
+    st = pstate(s)
+    rec = next((v for v in st["store"] if v.get("code") == "SNCF-ABC-1"), None)
+    check("io: a wagonBAR export imports as-is (site and amount kept, fresh id)",
+          rec is not None and rec.get("siteName") == "SNCF Connect"
+          and rec.get("siteUrl") == "https://www.sncf-connect.com"
+          and rec.get("amount") == 20 and rec.get("id") != "wb-1",
+          rec)
+
     # --- freemium gate on import: fresh page, 10 seeded, no license ---
     ten = [{"id": "seed-i-%d" % i, "siteName": "Shop %d" % i,
             "code": "E2E-I-%d" % i, "expiryDate": "2030-01-01"}
