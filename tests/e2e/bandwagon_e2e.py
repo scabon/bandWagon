@@ -613,6 +613,92 @@ def freemium_tests(s, url):
           len(st["store"]))
 
 
+def io_tests(s, url):
+    # runs right after freemium_tests: 11 vouchers, license unlocked (pro)
+
+    # --- export ---
+    s.page_js("document.getElementById('menuBtn').click(); return 'ok';")
+    s.page_js("document.getElementById('menuSettings').click(); return 'ok';")
+    time.sleep(0.3)
+    s.page_js("document.getElementById('exportBtn').click(); return 'ok';")
+    time.sleep(0.6)
+    exp = json.loads(s.page_js(
+        "return JSON.stringify({"
+        " raw: document.documentElement.getAttribute('data-e2e-export') || '',"
+        " status: (function(){var x=document.getElementById('statusMessage');"
+        "          return {hidden:x.hidden, text:x.textContent};})()});"))
+    parsed = json.loads(exp["raw"]) if exp["raw"] else {}
+    check("io: export produces the bandWagon JSON with all vouchers",
+          parsed.get("app") == "bandWagon" and parsed.get("formatVersion") == 1
+          and len(parsed.get("vouchers") or []) == 11,
+          (parsed.get("app"), len(parsed.get("vouchers") or [])))
+    check("io: export shows a success status",
+          not exp["status"]["hidden"] and "exported" in exp["status"]["text"],
+          exp["status"])
+
+    def import_file(payload_text):
+        s.page_js(
+            "var f = new File([%s], 'import.json', {type: 'application/json'});"
+            "var dt = new DataTransfer(); dt.items.add(f);"
+            "var i = document.getElementById('importFileInput');"
+            "i.files = dt.files; i.dispatchEvent(new Event('change')); return 'ok';"
+            % json.dumps(payload_text))
+        time.sleep(0.8)
+
+    # --- valid import: +2 (one name-only, one URL-only -> name deduced) ---
+    payload = {"app": "bandWagon", "formatVersion": 1, "vouchers": [
+        {"siteName": "Imported Shop", "code": "IMP-1", "amount": 12.5,
+         "expiryDate": "2030-05-05"},
+        {"siteUrl": "www.imported-url-shop.com", "code": "IMP-2"},
+    ]}
+    import_file(json.dumps(payload))
+    st = pstate(s)
+    names = [v.get("siteName") for v in st["store"]]
+    check("io: import adds valid vouchers (URL-only gets its name deduced)",
+          "Imported Shop" in names and "imported-url-shop.com" in names
+          and len(st["store"]) == 13, (names, len(st["store"])))
+    check("io: import reports the imported count",
+          not st["status"]["hidden"] and "2" in st["status"]["text"]
+          and "imported" in st["status"]["text"], st["status"])
+
+    # --- duplicate: same code + same site as the one just imported ---
+    import_file(json.dumps([{"siteName": "Imported Shop", "code": "IMP-1"}]))
+    st = pstate(s)
+    check("io: re-importing the same voucher is a no-op with a warning",
+          len(st["store"]) == 13 and "already" in st["status"]["text"],
+          (len(st["store"]), st["status"]))
+
+    # --- invalid JSON ---
+    import_file("this is not json")
+    st = pstate(s)
+    check("io: a non-JSON file shows an inline error, nothing imported",
+          len(st["store"]) == 13 and "not a valid JSON" in st["status"]["text"],
+          st["status"])
+
+    # --- valid JSON but no valid voucher ---
+    import_file(json.dumps([{"foo": "bar"}, 42, None]))
+    st = pstate(s)
+    check("io: a JSON without any valid voucher shows a schema error",
+          len(st["store"]) == 13 and "No valid voucher" in st["status"]["text"],
+          st["status"])
+
+    # --- freemium gate on import: fresh page, 10 seeded, no license ---
+    ten = [{"id": "seed-i-%d" % i, "siteName": "Shop %d" % i,
+            "code": "E2E-I-%d" % i, "expiryDate": "2030-01-01"}
+           for i in range(10)]
+    s.client.navigate(url + "?e2e-seed=" + quote(json.dumps(ten)))
+    time.sleep(1)
+    import_file(json.dumps([{"siteName": "One More Shop", "code": "IMP-11"}]))
+    st = pstate(s)
+    pw = json.loads(s.page_js(
+        "return JSON.stringify({"
+        " paywall: !document.getElementById('view-paywall').hidden,"
+        " main: !document.getElementById('view-main').hidden});"))
+    check("io: an import beyond the free limit opens the paywall, imports nothing",
+          pw["paywall"] is True and pw["main"] is False
+          and len(st["store"]) == 10, (pw, len(st["store"])))
+
+
 def popup_tests(s):
     port = 18345
     d, url = build_popup_test_page(port)
@@ -1338,8 +1424,8 @@ def popup_tests(s):
             " top: document.querySelector('#changelogContent ul li').textContent});"))
         check("menu: Changelog lists the version history",
               cl["hidden"] is False
-              and cl["versions"] == ["1.1.0", "1.0.1", "1.0.0"]
-              and "Free up to 10 vouchers" in cl["top"], cl)
+              and cl["versions"] == ["1.2.0", "1.1.0", "1.0.1", "1.0.0"]
+              and "Export your vouchers" in cl["top"], cl)
         s.page_js("document.querySelector('#view-changelog .back-btn').click(); return 'ok';")
 
         # language switch to French, from the Settings view
@@ -1907,6 +1993,7 @@ def popup_tests(s):
                         ".disabled;") is True)
 
         freemium_tests(s, url)
+        io_tests(s, url)
     finally:
         if httpd:
             httpd.shutdown()

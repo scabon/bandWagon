@@ -1,3 +1,5 @@
 dist/
 __pycache__/
 *.pyc
+web-ext-artifacts/
+.amo-upload-uuid

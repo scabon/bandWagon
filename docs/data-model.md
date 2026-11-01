@@ -57,6 +57,30 @@ with `siteName: "SNCF Connect"`, `siteUrl: "https://www.sncf-connect.com"`.
 A one-time import can be offered via the popup the first time bandWagon
 runs with an empty store — low priority, personal use only.
 
+## Export / import file format (v1.2.0)
+
+Export (Settings → Export) downloads `bandwagon-vouchers-YYYY-MM-DD.json`:
+
+```json
+{
+  "app": "bandWagon",
+  "formatVersion": 1,
+  "exportedAt": "2026-11-01T21:00:00.000Z",
+  "vouchers": [ /* voucher records, see above */ ]
+}
+```
+
+Import (Settings → Import) accepts that object **or a bare array of
+vouchers** (e.g. a wagonBAR export — map `siteName: "SNCF Connect"`,
+`siteUrl: "https://www.sncf-connect.com"`, see the migration section).
+Validation per entry: `siteName` required, or deduced from a parseable
+`siteUrl`; `code` uppercased; `amount` a number in (0, 10000];
+`expiryDate` a real YYYY-MM-DD (past dates allowed — the voucher shows as
+expired, like legacy data). Fresh `id`s are generated on import.
+Duplicates (same code + same site) are skipped and reported. The freemium
+gate applies: in the free tier, an import that would exceed FREE_LIMIT
+opens the paywall and imports nothing.
+
 ## Storage notes
 
 - Codes are stored in plain text in `storage.local` (same as wagonBAR).

@@ -14,6 +14,11 @@ When releasing a new version:
 3. bump `"version"` in `extension/manifest.json` to match the new section;
 4. run `python tools/check-changelog.py`.
 
+## [1.2.0] — 2026-11-01
+
+- Export your vouchers to a JSON file and import them back — the import accepts a bandWagon export or a bare voucher array (a site URL alone is enough, the site name is deduced from it).
+- Duplicates (same code on the same site) are skipped on import, and the free 10-voucher limit applies to imports too.
+
 ## [1.1.0] — 2026-11-01
 
 - Free up to 10 vouchers; a one-time 1 € unlock removes the limit (no subscription, no ads, no tracking — see docs/monetization.md).

@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const unlockCodeInput = document.getElementById('unlockCodeInput');
   const unlockBtn = document.getElementById('unlockBtn');
   const paywallStatus = document.getElementById('paywallStatus');
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const importFileInput = document.getElementById('importFileInput');
 
   // Voucher currently being edited in the form, null when adding
   let editingId = null;
@@ -148,7 +151,10 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
-                { version: '1.1.0',
+                        { version: '1.2.0',
+          items: ['Export your vouchers to a JSON file and import them back — the import accepts a bandWagon export or a bare voucher array (a site URL alone is enough, the site name is deduced from it).',
+                  'Duplicates (same code on the same site) are skipped on import, and the free 10-voucher limit applies to imports too.'] },
+{ version: '1.1.0',
           items: ['Free up to 10 vouchers; a one-time 1 € unlock removes the limit (no subscription, no ads, no tracking — see docs/monetization.md).',
                   'Adding an 11th voucher opens the unlock view, with a link to the payment page and a field for the unlock code.',
                   'The stats line shows the free limit until the extension is unlocked.'] },
@@ -191,7 +197,17 @@ document.addEventListener('DOMContentLoaded', function() {
       price: '1 €',
       paywallText: 'The free version keeps up to {n} vouchers. Unlock once for {price} to add as many as you need — a one-time payment, no subscription.',
       paywallPayLink: 'Unlock for {price}',
-      limitLine: 'Free: up to {n} vouchers'
+      limitLine: 'Free: up to {n} vouchers',
+      settingsData: 'Data',
+      settingsDataHint: 'Export your vouchers to a JSON file, or import a previously exported file',
+      exportVouchers: 'Export (JSON)',
+      importVouchers: 'Import (JSON)',
+      exportDone: '{n} vouchers exported.',
+      importDone: '{n} vouchers imported.',
+      importDup: '{n} duplicate(s) skipped.',
+      importAllDup: 'All {n} vouchers are already in your list.',
+      importErrFile: 'This file is not a valid JSON voucher export.',
+      importErrSchema: 'No valid voucher found in this file (a site name is required).'
     },
     fr: {
       appTitle: 'bandWagon \u2014 Bons',
@@ -283,7 +299,10 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
-                { version: '1.1.0',
+                        { version: '1.2.0',
+          items: ['Exportez vos bons dans un fichier JSON et r\u00e9importez-les \u2014 l\u2019import accepte un export bandWagon ou un simple tableau de bons (une URL de site suffit, le nom en est d\u00e9duit).',
+                  'Les doublons (m\u00eame code sur le m\u00eame site) sont ignor\u00e9s \u00e0 l\u2019import, et la limite gratuite de 10 bons s\u2019applique aussi aux imports.'] },
+{ version: '1.1.0',
           items: ['Gratuit jusqu\u2019\u00e0 10 bons ; un d\u00e9blocage unique \u00e0 1 \u20ac supprime la limite (sans abonnement, sans pub, sans tra\u00e7age \u2014 voir docs/monetization.md).',
                   'L\u2019ajout d\u2019un 11e bon ouvre la vue de d\u00e9blocage, avec un lien vers la page de paiement et un champ pour le code.',
                   'La ligne de statistiques affiche la limite gratuite tant que l\u2019extension n\u2019est pas d\u00e9bloqu\u00e9e.'] },
@@ -326,7 +345,17 @@ document.addEventListener('DOMContentLoaded', function() {
       price: '1 \u20ac',
       paywallText: 'La version gratuite conserve jusqu\u2019\u00e0 {n} bons. D\u00e9bloquez une fois pour {price} pour en ajouter autant que vous voulez \u2014 un paiement unique, sans abonnement.',
       paywallPayLink: 'D\u00e9bloquer pour {price}',
-      limitLine: 'Gratuit : jusqu\u2019\u00e0 {n} bons'
+      limitLine: 'Gratuit : jusqu\u2019\u00e0 {n} bons',
+      settingsData: 'Donn\u00e9es',
+      settingsDataHint: 'Exportez vos bons dans un fichier JSON, ou importez un fichier pr\u00e9c\u00e9demment export\u00e9',
+      exportVouchers: 'Exporter (JSON)',
+      importVouchers: 'Importer (JSON)',
+      exportDone: '{n} bons export\u00e9s.',
+      importDone: '{n} bons import\u00e9s.',
+      importDup: '{n} doublon(s) ignor\u00e9(s).',
+      importAllDup: 'Les {n} bons sont d\u00e9j\u00e0 dans votre liste.',
+      importErrFile: 'Ce fichier n\u2019est pas un export JSON de bons valide.',
+      importErrSchema: 'Aucun bon valide dans ce fichier (un nom de site est requis).'
     }
   };
 
@@ -492,6 +521,133 @@ document.addEventListener('DOMContentLoaded', function() {
     if (clamped !== n) leadDaysInput.value = clamped;
     settings.notifyLeadDays = clamped;
     saveSettings();
+  });
+
+  // ------------------------------------------------------- export/import
+  // Export format: {"app":"bandWagon","formatVersion":1,"exportedAt":...,
+  // "vouchers":[...]}. Import accepts that object or a bare array (e.g. a
+  // wagonBAR export): a voucher needs at least a site name, or a site URL
+  // the name is deduced from.
+  function buildExportJson(vouchers) {
+    return JSON.stringify({
+      app: 'bandWagon',
+      formatVersion: 1,
+      exportedAt: new Date().toISOString(),
+      vouchers: vouchers
+    }, null, 2);
+  }
+
+  function normalizeImportedVoucher(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    let siteName = typeof raw.siteName === 'string' ? raw.siteName.trim() : '';
+    let siteUrl = null;
+    if (typeof raw.siteUrl === 'string' && raw.siteUrl.trim()) {
+      const parsed = parseSiteUrl(raw.siteUrl.trim());
+      if (parsed) {
+        siteUrl = parsed.url;
+        if (!siteName) siteName = parsed.host;
+      }
+    }
+    if (!siteName) return null;
+    const v = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+      siteName: siteName,
+      createdAt: typeof raw.createdAt === 'string' ? raw.createdAt
+                                                   : new Date().toISOString()
+    };
+    if (siteUrl) v.siteUrl = siteUrl;
+    if (typeof raw.code === 'string' && raw.code.trim()) {
+      v.code = raw.code.trim().toUpperCase();
+    }
+    if (raw.amount !== undefined && raw.amount !== null && raw.amount !== '') {
+      const a = parseValueInput(String(raw.amount));
+      if (a !== undefined && a !== null) v.amount = a;
+    }
+    if (typeof raw.expiryDate === 'string' && raw.expiryDate.trim()) {
+      const d = parseDateInput(raw.expiryDate.trim());
+      if (d) v.expiryDate = d;
+    }
+    return v;
+  }
+
+  exportBtn.addEventListener('click', function() {
+    browser.storage.local.get('vouchers').then(function(data) {
+      const vouchers = data.vouchers || [];
+      const json = buildExportJson(vouchers);
+      // test hook: the e2e suite reads the export from this attribute
+      // (a real blob download cannot be intercepted headlessly)
+      document.documentElement.setAttribute('data-e2e-export', json);
+      const blob = new Blob([json], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'bandwagon-vouchers-' + new Date().toISOString().slice(0, 10) + '.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+      showStatus(t('exportDone', { n: vouchers.length }), 'success');
+    });
+  });
+
+  importBtn.addEventListener('click', function() {
+    importFileInput.click();
+  });
+
+  importFileInput.addEventListener('change', function() {
+    const file = importFileInput.files && importFileInput.files[0];
+    importFileInput.value = '';
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      let data;
+      try { data = JSON.parse(reader.result); } catch (e) {
+        showStatus(t('importErrFile'), 'error');
+        return;
+      }
+      const arr = Array.isArray(data) ? data
+                : (data && Array.isArray(data.vouchers) ? data.vouchers : null);
+      if (!arr) {
+        showStatus(t('importErrFile'), 'error');
+        return;
+      }
+      const imported = arr.map(normalizeImportedVoucher).filter(Boolean);
+      if (!imported.length) {
+        showStatus(t('importErrSchema'), 'error');
+        return;
+      }
+      Promise.all([browser.storage.local.get('vouchers'), isPro()]).then(function(results) {
+        const existing = results[0].vouchers || [];
+        const pro = results[1];
+        // the freemium gate applies to imports too: an import that would
+        // exceed the free limit opens the paywall and imports nothing
+        if (!pro && existing.length + imported.length > FREE_LIMIT) {
+          renderPaywallTexts();
+          showView('view-paywall');
+          return;
+        }
+        const fresh = [];
+        let dup = 0;
+        imported.forEach(function(v) {
+          const isDup = existing.some(e => isDuplicate(e, null, v.siteName, v.code || '')) ||
+                        fresh.some(e => isDuplicate(e, null, v.siteName, v.code || ''));
+          if (isDup) dup++;
+          else fresh.push(v);
+        });
+        if (!fresh.length) {
+          showStatus(t('importAllDup', { n: dup }), 'warning');
+          return;
+        }
+        const all = existing.concat(fresh);
+        browser.storage.local.set({ vouchers: all }).then(function() {
+          loadVouchers();
+          let msg = t('importDone', { n: fresh.length });
+          if (dup) msg += ' ' + t('importDup', { n: dup });
+          showStatus(msg, 'success');
+          fresh.forEach(function(v) { syncWriteVoucher(v); });
+        });
+      });
+    };
+    reader.readAsText(file);
   });
 
   // ---------------------------------------------------------------- views
