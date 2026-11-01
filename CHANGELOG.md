@@ -14,6 +14,12 @@ When releasing a new version:
 3. bump `"version"` in `extension/manifest.json` to match the new section;
 4. run `python tools/check-changelog.py`.
 
+## [1.0.1] — 2026-11-01
+
+- About view: a "Rate this extension" link opens the store listing of the detected browser (AMO on Firefox, Edge Add-ons when the browser is Edge, Chrome Web Store otherwise).
+- Accessibility pass on the popup: menu roles with aria-expanded and focus management, Escape goes back from sub-views, calendar buttons get aria-labels, arrow-key navigation and focus return, status messages in a polite live region, labeled sort selector.
+- Dark-theme contrast fixed, prefers-reduced-motion honored, expired vouchers get a text badge instead of a color-only marker.
+
 ## [1.0.0] — 2026-10-28
 
 - First release: keep track of vouchers and gift cards for any site.

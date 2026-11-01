@@ -140,6 +140,10 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
+        { version: '1.0.1',
+          items: ['About view: a "Rate this extension" link opens the store listing of the detected browser (AMO on Firefox, Edge Add-ons when the browser is Edge, Chrome Web Store otherwise).',
+                  'Accessibility pass on the popup: menu roles with aria-expanded and focus management, Escape goes back from sub-views, calendar buttons get aria-labels, arrow-key navigation and focus return, status messages in a polite live region, labeled sort selector.',
+                  'Dark-theme contrast fixed, prefers-reduced-motion honored, expired vouchers get a text badge instead of a color-only marker.'] },
         { version: '1.0.0',
           items: ['First release: keep track of vouchers and gift cards for any site.',
                   'Only the site name is required: the URL, code, value and expiry date are all optional (a voucher can be just the name of a local merchant).',
@@ -256,6 +260,10 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
+        { version: '1.0.1',
+          items: ['Vue \u00c0 propos : un lien \u00ab Noter l\u2019extension \u00bb ouvre la fiche store du navigateur d\u00e9tect\u00e9 (AMO sur Firefox, Edge Add-ons si le navigateur est Edge, Chrome Web Store sinon).',
+                  'Passe accessibilit\u00e9 du popup : r\u00f4les de menu avec aria-expanded et gestion du focus, \u00c9chap revient des sous-vues, boutons du calendrier avec aria-labels + fl\u00e8ches + retour du focus, message de statut en live region polite, s\u00e9lecteur de tri \u00e9tiquet\u00e9.',
+                  'Contraste du th\u00e8me sombre corrig\u00e9, prefers-reduced-motion pris en compte, les bons expir\u00e9s ont un badge texte \u00ab expir\u00e9 \u00bb au lieu d\u2019un marqueur couleur seul.'] },
         { version: '1.0.0',
           items: ['Premi\u00e8re version : suivez vos bons et cartes cadeaux pour tous vos sites.',
                   'Seul le nom du site est requis : l\u2019URL, le code, la valeur et la date d\u2019expiration sont tous facultatifs (un bon peut n\u2019\u00eatre que le nom d\u2019un commer\u00e7ant local).',

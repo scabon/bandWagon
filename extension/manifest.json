@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "bandWagon",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Track vouchers and gift cards for any site, and get reminders to use them",
   "icons": {
     "16": "icons/icon-16.png",
