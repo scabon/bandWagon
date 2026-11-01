@@ -119,6 +119,7 @@
       <p><span data-i18n="statsTotal">Total</span>: <span id="totalVouchers">0</span> <span data-i18n="statsVouchers">vouchers</span></p>
       <p><span data-i18n="statsValid">Valid</span>: <span id="validVouchers">0</span> <span data-i18n="statsVouchers">vouchers</span></p>
       <p><span data-i18n="statsValue">Value</span>: <span id="validValue">0</span> <span id="currencySymbol">&#8364;</span></p>
+      <p id="limitLine" hidden><span id="limitLineText">Free: up to {n} vouchers</span> — <a href="#" id="limitUnlockLink">Unlock unlimited</a></p>
     </div>
   </div>
 
@@ -198,8 +199,32 @@
     <div class="section help-text" id="aboutContent"></div>
   </div>
 
+  <div class="container" id="view-paywall" hidden>
+    <div class="back-row">
+      <button type="button" class="back-btn" data-back data-i18n-title="back" title="Back">&#8592;</button>
+      <h1 data-i18n="paywallTitle">Unlock unlimited vouchers</h1>
+    </div>
+    <div class="section help-text">
+      <p id="paywallText">The free version keeps up to {n} vouchers. Unlock once for {price} to add as many as you need — a one-time payment, no subscription.</p>
+      <p><a id="paywallPayLink" href="https://cabon14.com/bandwagon-unlock.html" target="_blank" rel="noopener">Unlock for {price}</a></p>
+    </div>
+    <div class="section">
+      <div class="form-group">
+        <label for="unlockCodeInput" data-i18n="paywallCodeLabel">Already paid? Enter your unlock code:</label>
+        <input type="text" id="unlockCodeInput" data-i18n-placeholder="paywallCodePlaceholder" placeholder="WAGON-XXXX-XXXX" autocomplete="off">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary" id="unlockBtn" data-i18n="paywallUnlockBtn">Unlock</button>
+      </div>
+      <div class="status-slot">
+        <div id="paywallStatus" class="status-message" role="status" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </div>
+
   <script src="../vendor/browser-polyfill.js"></script>
   <script src="../shared/sync-common.js"></script>
+  <script src="../shared/license.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

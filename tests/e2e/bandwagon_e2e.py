@@ -310,7 +310,8 @@ SHIM = """
     ['data-e2e-settings', function(){ return localStore.settings || {}; }],
     ['data-e2e-exp-notified', function(){ return localStore.expiryNotified || {}; }],
     ['data-e2e-exp-snooze', function(){ return localStore.expirySnooze || {}; }],
-    ['data-e2e-draft', function(){ return localStore.draft || null; }]
+    ['data-e2e-draft', function(){ return localStore.draft || null; }],
+    ['data-e2e-license', function(){ return localStore.license || null; }]
   ]);
   var syncArea = makeArea('sync', syncStore, [
     ['data-e2e-sync-store', function(){ return syncStore; }]
@@ -415,6 +416,7 @@ SHIM = """
   root.setAttribute('data-e2e-exp-notified', '{}');
   root.setAttribute('data-e2e-exp-snooze', '{}');
   root.setAttribute('data-e2e-draft', JSON.stringify(draftSeed));
+  root.setAttribute('data-e2e-license', 'null');
   root.setAttribute('data-e2e-alerts', JSON.stringify(alerts));
   root.setAttribute('data-e2e-confirms', JSON.stringify(confirms));
   root.setAttribute('data-e2e-badge', '');
@@ -430,6 +432,8 @@ def build_popup_test_page(port):
     # engine, all against the storage shim below
     shutil.copy(os.path.join(EXT_DIR, "shared", "sync-common.js"),
                 os.path.join(d, "sync-common.js"))
+    shutil.copy(os.path.join(EXT_DIR, "shared", "license.js"),
+                os.path.join(d, "license.js"))
     shutil.copy(os.path.join(EXT_DIR, "background", "background.js"),
                 os.path.join(d, "background.js"))
     shutil.copy(os.path.join(EXT_DIR, "background", "sync.js"),
@@ -449,6 +453,7 @@ def build_popup_test_page(port):
     # script is re-injected after it, with test-page-relative paths)
     html = html.replace('  <script src="../vendor/browser-polyfill.js"></script>\n', '')
     html = html.replace('  <script src="../shared/sync-common.js"></script>\n', '')
+    html = html.replace('  <script src="../shared/license.js"></script>\n', '')
     # The real popup is exactly as wide as the container (350px); constrain
     # the test page the same way so wrapping matches the popup
     html = html.replace('<link rel="stylesheet" href="popup.css">',
@@ -461,6 +466,7 @@ def build_popup_test_page(port):
                         + "\n  <script src=\"sync.js\"></script>"
                         + "\n  <script src=\"site-notify.js\"></script>"
                         + "\n  <script src=\"expiry-notify.js\"></script>"
+                        + "\n  <script src=\"license.js\"></script>"
                         + "\n  <script src=\"popup.js\"></script>")
     with open(os.path.join(d, "test-popup.html"), "w", encoding="utf-8") as fh:
         fh.write(html)
@@ -486,6 +492,7 @@ def pstate(s):
         " expNotified: JSON.parse(document.documentElement.getAttribute('data-e2e-exp-notified') || '{}'),"
         " expSnooze: JSON.parse(document.documentElement.getAttribute('data-e2e-exp-snooze') || '{}'),"
         " draft: JSON.parse(document.documentElement.getAttribute('data-e2e-draft') || 'null'),"
+        " license: JSON.parse(document.documentElement.getAttribute('data-e2e-license') || 'null'),"
         " syncStore: JSON.parse(document.documentElement.getAttribute('data-e2e-sync-store') || '{}'),"
         " badge: document.documentElement.getAttribute('data-e2e-badge') || '',"
         " deviceId: (function(){ var v = document.documentElement.getAttribute('data-e2e-device') || '';"
@@ -534,6 +541,76 @@ def popup_add(s, code, date, value=None, site_name=SITE_NAME,
                           json.dumps("" if value is None else value),
                           json.dumps(date))
     )
+
+
+def freemium_tests(s, url):
+    ten = [{"id": "seed-f-%d" % i, "siteName": "Shop %d" % i,
+            "code": "E2E-F-%d" % i, "expiryDate": "2030-01-01"}
+           for i in range(10)]
+    s.client.navigate(url + "?e2e-seed=" + quote(json.dumps(ten)))
+    time.sleep(1)
+
+    ll = json.loads(s.page_js(
+        "var l = document.getElementById('limitLine'),"
+        "    t = document.getElementById('limitLineText');"
+        "return JSON.stringify({hidden: l.hidden, text: t.textContent});"))
+    check("freemium: limit line shows the free limit",
+          ll["hidden"] is False and "10" in ll["text"], ll)
+
+    # adding an 11th voucher opens the paywall instead of storing
+    popup_add(s, "E2E-11TH", "", site_name="Eleventh Shop", site_url=None)
+    time.sleep(0.8)
+    st = pstate(s)
+    pw = json.loads(s.page_js(
+        "return JSON.stringify({"
+        " paywall: !document.getElementById('view-paywall').hidden,"
+        " main: !document.getElementById('view-main').hidden,"
+        " text: document.getElementById('paywallText').textContent,"
+        " link: document.getElementById('paywallPayLink').href});"))
+    check("freemium: the 11th add opens the paywall, nothing stored",
+          pw["paywall"] is True and pw["main"] is False
+          and len(st["store"]) == 10 and "10" in pw["text"]
+          and "bandwagon-unlock.html" in pw["link"], (pw, len(st["store"])))
+
+    # wrong code -> inline error on the paywall
+    s.page_js("document.getElementById('unlockCodeInput').value = 'WRONG-CODE';"
+              "document.getElementById('unlockBtn').click(); return 'ok';")
+    time.sleep(0.6)
+    pwst = json.loads(s.page_js(
+        "var p = document.getElementById('paywallStatus');"
+        "return JSON.stringify({hidden: p.hidden, text: p.textContent,"
+        " cls: p.className});"))
+    check("freemium: a wrong unlock code shows an inline error",
+          pwst["hidden"] is False and "not valid" in pwst["text"]
+          and "error" in pwst["cls"], pwst)
+
+    # right code (lowercase on purpose: it is normalized) -> unlocked
+    s.page_js("document.getElementById('unlockCodeInput').value = 'wagon-1eur-2026';"
+              "document.getElementById('unlockBtn').click(); return 'ok';")
+    time.sleep(0.8)
+    st = pstate(s)
+    pw2 = json.loads(s.page_js(
+        "return JSON.stringify({"
+        " paywall: !document.getElementById('view-paywall').hidden,"
+        " limitHidden: document.getElementById('limitLine').hidden,"
+        " status: (function(){ var x = document.getElementById('statusMessage');"
+        "          return { hidden: x.hidden, text: x.textContent }; })()});"))
+    check("freemium: the unlock code unlocks and stores the license",
+          pw2["paywall"] is False and st["license"] is not None
+          and st["license"].get("unlocked") is True
+          and st["license"].get("code") == "WAGON-1EUR-2026", (pw2, st["license"]))
+    check("freemium: limit line hidden and success shown once unlocked",
+          pw2["limitHidden"] is True and not pw2["status"]["hidden"]
+          and "nlocked" in pw2["status"]["text"], pw2)
+
+    # now the 11th voucher goes through
+    popup_add(s, "E2E-11TH", "", site_name="Eleventh Shop", site_url=None)
+    time.sleep(0.8)
+    st = pstate(s)
+    check("freemium: an 11th voucher is stored once unlocked",
+          len(st["store"]) == 11
+          and any(v.get("code") == "E2E-11TH" for v in st["store"]),
+          len(st["store"]))
 
 
 def popup_tests(s):
@@ -1261,8 +1338,8 @@ def popup_tests(s):
             " top: document.querySelector('#changelogContent ul li').textContent});"))
         check("menu: Changelog lists the version history",
               cl["hidden"] is False
-              and cl["versions"] == ["1.0.1", "1.0.0"]
-              and "Rate this extension" in cl["top"], cl)
+              and cl["versions"] == ["1.1.0", "1.0.1", "1.0.0"]
+              and "Free up to 10 vouchers" in cl["top"], cl)
         s.page_js("document.querySelector('#view-changelog .back-btn').click(); return 'ok';")
 
         # language switch to French, from the Settings view
@@ -1828,6 +1905,8 @@ def popup_tests(s):
         check("form: the Add button is disabled again after a submit",
               s.page_js("return document.getElementById('submitBtn')"
                         ".disabled;") is True)
+
+        freemium_tests(s, url)
     finally:
         if httpd:
             httpd.shutdown()

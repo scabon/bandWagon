@@ -32,6 +32,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const helpContent = document.getElementById('helpContent');
   const changelogContent = document.getElementById('changelogContent');
   const aboutContent = document.getElementById('aboutContent');
+  const limitLine = document.getElementById('limitLine');
+  const limitLineText = document.getElementById('limitLineText');
+  const limitUnlockLink = document.getElementById('limitUnlockLink');
+  const paywallText = document.getElementById('paywallText');
+  const paywallPayLink = document.getElementById('paywallPayLink');
+  const unlockCodeInput = document.getElementById('unlockCodeInput');
+  const unlockBtn = document.getElementById('unlockBtn');
+  const paywallStatus = document.getElementById('paywallStatus');
 
   // Voucher currently being edited in the form, null when adding
   let editingId = null;
@@ -140,7 +148,11 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
-        { version: '1.0.1',
+                { version: '1.1.0',
+          items: ['Free up to 10 vouchers; a one-time 1 € unlock removes the limit (no subscription, no ads, no tracking — see docs/monetization.md).',
+                  'Adding an 11th voucher opens the unlock view, with a link to the payment page and a field for the unlock code.',
+                  'The stats line shows the free limit until the extension is unlocked.'] },
+{ version: '1.0.1',
           items: ['About view: a "Rate this extension" link opens the store listing of the detected browser (AMO on Firefox, Edge Add-ons when the browser is Edge, Chrome Web Store otherwise).',
                   'Accessibility pass on the popup: menu roles with aria-expanded and focus management, Escape goes back from sub-views, calendar buttons get aria-labels, arrow-key navigation and focus return, status messages in a polite live region, labeled sort selector.',
                   'Dark-theme contrast fixed, prefers-reduced-motion honored, expired vouchers get a text badge instead of a color-only marker.'] },
@@ -168,7 +180,18 @@ document.addEventListener('DOMContentLoaded', function() {
       donateLiberapay: 'Donate on Liberapay',
       donateTipeee: 'Tip on Tipeee',
       rateExtension: 'Rate this extension',
-      expiredBadge: 'expired'
+      expiredBadge: 'expired',
+      paywallTitle: 'Unlock unlimited vouchers',
+      paywallCodeLabel: 'Already paid? Enter your unlock code:',
+      paywallCodePlaceholder: 'WAGON-XXXX-XXXX',
+      paywallUnlockBtn: 'Unlock',
+      paywallWrongCode: 'This code is not valid.',
+      paywallUnlocked: 'Unlocked — unlimited vouchers. Thank you!',
+      limitUnlockLink: 'Unlock unlimited',
+      price: '1 €',
+      paywallText: 'The free version keeps up to {n} vouchers. Unlock once for {price} to add as many as you need — a one-time payment, no subscription.',
+      paywallPayLink: 'Unlock for {price}',
+      limitLine: 'Free: up to {n} vouchers'
     },
     fr: {
       appTitle: 'bandWagon \u2014 Bons',
@@ -260,7 +283,11 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
-        { version: '1.0.1',
+                { version: '1.1.0',
+          items: ['Gratuit jusqu\u2019\u00e0 10 bons ; un d\u00e9blocage unique \u00e0 1 \u20ac supprime la limite (sans abonnement, sans pub, sans tra\u00e7age \u2014 voir docs/monetization.md).',
+                  'L\u2019ajout d\u2019un 11e bon ouvre la vue de d\u00e9blocage, avec un lien vers la page de paiement et un champ pour le code.',
+                  'La ligne de statistiques affiche la limite gratuite tant que l\u2019extension n\u2019est pas d\u00e9bloqu\u00e9e.'] },
+{ version: '1.0.1',
           items: ['Vue \u00c0 propos : un lien \u00ab Noter l\u2019extension \u00bb ouvre la fiche store du navigateur d\u00e9tect\u00e9 (AMO sur Firefox, Edge Add-ons si le navigateur est Edge, Chrome Web Store sinon).',
                   'Passe accessibilit\u00e9 du popup : r\u00f4les de menu avec aria-expanded et gestion du focus, \u00c9chap revient des sous-vues, boutons du calendrier avec aria-labels + fl\u00e8ches + retour du focus, message de statut en live region polite, s\u00e9lecteur de tri \u00e9tiquet\u00e9.',
                   'Contraste du th\u00e8me sombre corrig\u00e9, prefers-reduced-motion pris en compte, les bons expir\u00e9s ont un badge texte \u00ab expir\u00e9 \u00bb au lieu d\u2019un marqueur couleur seul.'] },
@@ -288,7 +315,18 @@ document.addEventListener('DOMContentLoaded', function() {
       donateLiberapay: 'Soutenir sur Liberapay',
       donateTipeee: 'Pourboire sur Tipeee',
       rateExtension: 'Noter l\u2019extension',
-      expiredBadge: 'expir\u00e9'
+      expiredBadge: 'expir\u00e9',
+      paywallTitle: 'D\u00e9bloquez les bons illimit\u00e9s',
+      paywallCodeLabel: 'D\u00e9j\u00e0 pay\u00e9 ? Saisissez votre code de d\u00e9blocage :',
+      paywallCodePlaceholder: 'WAGON-XXXX-XXXX',
+      paywallUnlockBtn: 'D\u00e9bloquer',
+      paywallWrongCode: 'Ce code n\u2019est pas valide.',
+      paywallUnlocked: 'D\u00e9bloqu\u00e9 \u2014 bons illimit\u00e9s. Merci !',
+      limitUnlockLink: 'D\u00e9bloquer l\u2019illimit\u00e9',
+      price: '1 \u20ac',
+      paywallText: 'La version gratuite conserve jusqu\u2019\u00e0 {n} bons. D\u00e9bloquez une fois pour {price} pour en ajouter autant que vous voulez \u2014 un paiement unique, sans abonnement.',
+      paywallPayLink: 'D\u00e9bloquer pour {price}',
+      limitLine: 'Gratuit : jusqu\u2019\u00e0 {n} bons'
     }
   };
 
@@ -381,6 +419,8 @@ document.addEventListener('DOMContentLoaded', function() {
     buildHelpContent();
     buildChangelogContent();
     buildAboutContent();
+    renderPaywallTexts();
+    updateLimitLine();
     // Dynamic labels and any rendered vouchers must follow the language
     submitBtn.textContent = editingId ? t('updateVoucher') : t('addVoucher');
     loadVouchers();
@@ -456,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ---------------------------------------------------------------- views
   const VIEWS = ['view-main', 'view-settings', 'view-help', 'view-changelog',
-                 'view-about'];
+                 'view-about', 'view-paywall'];
 
   function showView(id) {
     VIEWS.forEach(function(view) {
@@ -502,6 +542,45 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('[data-back]').forEach(function(btn) {
     btn.addEventListener('click', function() {
       showView('view-main');
+    });
+  });
+
+  // ------------------------------------------------------- freemium gate
+  // Texts carrying {n}/{price} are set here (not via data-i18n, which
+  // has no params) and re-applied on every language change
+  function renderPaywallTexts() {
+    paywallText.textContent = t('paywallText', { n: FREE_LIMIT, price: t('price') });
+    paywallPayLink.textContent = t('paywallPayLink', { price: t('price') });
+    paywallPayLink.href = PAYMENT_URL;
+  }
+
+  function updateLimitLine() {
+    isPro().then(function(pro) {
+      limitLine.hidden = pro;
+      if (!pro) limitLineText.textContent = t('limitLine', { n: FREE_LIMIT });
+    });
+  }
+
+  limitUnlockLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    renderPaywallTexts();
+    showView('view-paywall');
+  });
+
+  unlockBtn.addEventListener('click', function() {
+    paywallStatus.hidden = true;
+    unlockWithCode(unlockCodeInput.value).then(function(ok) {
+      if (!ok) {
+        paywallStatus.textContent = t('paywallWrongCode');
+        paywallStatus.className = 'status-message error';
+        paywallStatus.hidden = false;
+        return;
+      }
+      unlockCodeInput.value = '';
+      showView('view-main');
+      updateLimitLine();
+      loadVouchers();
+      showStatus(t('paywallUnlocked'), 'success');
     });
   });
 
@@ -841,7 +920,9 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    browser.storage.local.get('vouchers').then(function(data) {
+    Promise.all([browser.storage.local.get('vouchers'), isPro()]).then(function(results) {
+      const data = results[0];
+      const pro = results[1];
       const vouchers = data.vouchers || [];
 
       if (editingId) {
@@ -876,6 +957,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return;      }
 
       // Add new voucher
+
+      // Freemium gate (docs/monetization.md): the free tier stops at
+      // FREE_LIMIT vouchers — editing an existing one is never gated
+      if (!pro && vouchers.length >= FREE_LIMIT) {
+        renderPaywallTexts();
+        showView('view-paywall');
+        return;
+      }
 
       // Check for duplicate (same code on the same site)
       const exists = vouchers.some(v => isDuplicate(v, site, siteName, code));
