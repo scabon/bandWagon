@@ -1099,6 +1099,37 @@ def popup_tests(s):
                                "E2E-SOON-111", "E2E-TRIM-1", "GPLI089N3"],
               list_codes())
 
+        # search box: live filter by code, by site name, no-match message
+        s.page_js("var si = document.getElementById('searchInput');"
+                  "si.value = 'trim'; si.dispatchEvent(new Event('input'));"
+                  "return 'ok';")
+        time.sleep(0.3)
+        check("popup: search filters the list by code",
+              list_codes() == ["E2E-TRIM-1"], list_codes())
+
+        s.page_js("var si = document.getElementById('searchInput');"
+                  "si.value = 'EXAMPLE shop';"
+                  "si.dispatchEvent(new Event('input')); return 'ok';")
+        time.sleep(0.3)
+        check("popup: search matches the site name case-insensitively",
+              len(list_codes()) == 6, list_codes())
+
+        s.page_js("var si = document.getElementById('searchInput');"
+                  "si.value = 'zzz-no-match';"
+                  "si.dispatchEvent(new Event('input')); return 'ok';")
+        time.sleep(0.3)
+        st = pstate(s)
+        check("popup: search with no match shows the no-results message",
+              len(st["items"]) == 0 and "No voucher matches" in st["empty"],
+              st["empty"])
+
+        s.page_js("var si = document.getElementById('searchInput');"
+                  "si.value = ''; si.dispatchEvent(new Event('input'));"
+                  "return 'ok';")
+        time.sleep(0.3)
+        check("popup: clearing the search restores the full list",
+              len(list_codes()) == 6, list_codes())
+
         # a voucher expiring today counts as valid through the end of its
         # expiry day (date-only strings must not be parsed as UTC, which
         # would make it look already expired depending on the timezone)
@@ -1450,8 +1481,8 @@ def popup_tests(s):
             " top: document.querySelector('#changelogContent ul li').textContent});"))
         check("menu: Changelog lists the version history",
               cl["hidden"] is False
-              and cl["versions"] == ["1.2.1", "1.2.0", "1.1.0", "1.0.1", "1.0.0"]
-              and "Fixed: the Import file picker" in cl["top"], cl)
+              and cl["versions"] == ["1.3.0", "1.2.1", "1.2.0", "1.1.0", "1.0.1", "1.0.0"]
+              and "Search field above the voucher list" in cl["top"], cl)
         s.page_js("document.querySelector('#view-changelog .back-btn').click(); return 'ok';")
 
         # language switch to French, from the Settings view

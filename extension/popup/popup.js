@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
   const cancelEditBtn = document.getElementById('cancelEditBtn');
   const sortSelect = document.getElementById('sortOrder');
+  const searchInput = document.getElementById('searchInput');
   const removeExpiredBtn = document.getElementById('removeExpiredBtn');
   const menuBtn = document.getElementById('menuBtn');
   const menuPanel = document.getElementById('menuPanel');
@@ -94,6 +95,9 @@ document.addEventListener('DOMContentLoaded', function() {
       sortByValue: 'By value',
       sortOrder: 'Sort order',
       emptyMessage: 'No vouchers yet. Add one above!',
+      searchPlaceholder: 'Search by site, code or amount\u2026',
+      searchLabel: 'Search vouchers',
+      noResults: 'No voucher matches \u201c{q}\u201d.',
       statsTotal: 'Total',
       statsValid: 'Valid',
       statsValue: 'Value',
@@ -151,6 +155,8 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
+                                { version: '1.3.0',
+          items: ['Search field above the voucher list: filters by site name, site URL, code or amount as you type (accent-insensitive), with a “no match” message when nothing fits.'] },
                                 { version: '1.2.1',
           items: ['Fixed: the Import file picker did not open on Firefox — the file input was hidden, and Firefox only opens the picker for a rendered input (now rendered off-screen).'] },
 { version: '1.2.0',
@@ -244,6 +250,9 @@ document.addEventListener('DOMContentLoaded', function() {
       sortByValue: 'Par valeur',
       sortOrder: 'Ordre de tri',
       emptyMessage: 'Aucun bon pour l\u2019instant. Ajoutez-en un ci-dessus !',
+      searchPlaceholder: 'Rechercher par site, code ou montant\u2026',
+      searchLabel: 'Rechercher des bons',
+      noResults: 'Aucun bon ne correspond \u00e0 \u00ab {q} \u00bb.',
       statsTotal: 'Total',
       statsValid: 'Valides',
       statsValue: 'Valeur',
@@ -301,6 +310,8 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
+                                { version: '1.3.0',
+          items: ['Champ de recherche au-dessus de la liste des bons : filtre par nom de site, URL, code ou montant au fil de la frappe (insensible aux accents), avec un message \u00ab aucun r\u00e9sultat \u00bb quand rien ne correspond.'] },
                                 { version: '1.2.1',
           items: ['Corrig\u00e9 : le s\u00e9lecteur de fichier de l\u2019import ne s\u2019ouvrait pas sur Firefox \u2014 l\u2019input \u00e9tait cach\u00e9, et Firefox n\u2019ouvre le s\u00e9lecteur que pour un input rendu (maintenant rendu hors \u00e9cran).'] },
 { version: '1.2.0',
@@ -1252,18 +1263,28 @@ document.addEventListener('DOMContentLoaded', function() {
     startEdit(btn.dataset.id);
   });
 
-  // Load vouchers from storage, applying the remembered sort order
+  // Load vouchers from storage, applying the remembered sort order.
+  // allVouchers caches the last read so the search box can re-render
+  // on every keystroke without hitting storage again
+  let allVouchers = [];
+
   function loadVouchers() {
     browser.storage.local.get(['vouchers', 'sortOrder']).then(function(data) {
       sortSelect.value =
           (data.sortOrder === 'code' || data.sortOrder === 'value')
               ? data.sortOrder : 'date';
-      renderVouchers(data.vouchers || []);
+      allVouchers = data.vouchers || [];
+      renderVouchers(allVouchers);
     });
   }
 
   sortSelect.addEventListener('change', function() {
     browser.storage.local.set({ sortOrder: sortSelect.value }).then(loadVouchers);
+  });
+
+  // Live filter: re-render on every keystroke
+  searchInput.addEventListener('input', function() {
+    renderVouchers(allVouchers);
   });
 
   // Create an element with optional class and text
@@ -1409,9 +1430,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Render vouchers in the list, sorted by date, code or value
+  // Accent-insensitive lowercase form used for search matching, so
+  // "credit" also matches "crédit"
+  function normalizeText(s) {
+    return (s || '').toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  // A voucher matches the search when the query appears in its site
+  // name, site URL, code or amount
+  function matchesSearch(voucher, query) {
+    const q = normalizeText(query);
+    if (!q) return true;
+    return normalizeText(voucher.siteName).indexOf(q) !== -1 ||
+           normalizeText(voucher.siteUrl).indexOf(q) !== -1 ||
+           normalizeText(voucher.code).indexOf(q) !== -1 ||
+           (voucher.amount !== undefined && voucher.amount !== null &&
+            String(voucher.amount).indexOf(q) !== -1);
+  }
+
+  // Render vouchers in the list, filtered by the search box and sorted
+  // by date, code or value
   function renderVouchers(vouchers) {
-    const sorted = vouchers.slice();
+    // The search box is pointless with an empty list
+    searchInput.hidden = vouchers.length === 0;
+
+    const query = searchInput.value.trim();
+    const visible = query
+        ? vouchers.filter(function(v) { return matchesSearch(v, query); })
+        : vouchers;
+    const sorted = visible.slice();
     if (sortSelect.value === 'code') {
       sorted.sort((a, b) => (a.code || '').localeCompare(b.code || ''));
     } else if (sortSelect.value === 'value') {
@@ -1427,7 +1475,7 @@ document.addEventListener('DOMContentLoaded', function() {
       sorted.sort((a, b) => expiryKey(a) - expiryKey(b));
     }
 
-    if (sorted.length === 0) {
+    if (vouchers.length === 0) {
       voucherList.replaceChildren(buildNode('p', 'empty-message', t('emptyMessage')));
       totalVouchersSpan.textContent = '0';
       validVouchersSpan.textContent = '0';
@@ -1440,9 +1488,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const now = new Date();
     now.setHours(0, 0, 0, 0); // Normalize to start of day
 
+    // Stats and the bulk-clear action cover the whole collection, not
+    // just the rows the search filter lets through
     let validCount = 0;
     let expiredCount = 0;
     let validValue = 0;
+    vouchers.forEach(function(voucher) {
+      const expiryDate = voucher.expiryDate
+          ? new Date(voucher.expiryDate + 'T00:00:00') : null;
+      const isValid = !voucher.expiryDate || expiryDate >= now;
+      if (isValid) {
+        validCount++;
+        if (voucher.amount !== undefined && voucher.amount !== null) {
+          validValue += voucher.amount;
+        }
+      } else {
+        expiredCount++;
+      }
+    });
+
     const frag = document.createDocumentFragment();
 
     sorted.forEach(function(voucher) {
@@ -1453,15 +1517,6 @@ document.addEventListener('DOMContentLoaded', function() {
       const expiryDate = voucher.expiryDate
           ? new Date(voucher.expiryDate + 'T00:00:00') : null;
       const isValid = !voucher.expiryDate || expiryDate >= now;
-
-      if (isValid) {
-        validCount++;
-        if (voucher.amount !== undefined && voucher.amount !== null) {
-          validValue += voucher.amount;
-        }
-      } else {
-        expiredCount++;
-      }
 
       const info = buildNode('div');
       // No URL (a local merchant): a plain label, not a link
@@ -1503,7 +1558,11 @@ document.addEventListener('DOMContentLoaded', function() {
       frag.appendChild(item);
     });
 
-    voucherList.replaceChildren(frag);
+    // A filter that excludes everything says so instead of showing a
+    // blank list
+    voucherList.replaceChildren(sorted.length === 0
+        ? buildNode('p', 'empty-message', t('noResults', { q: query }))
+        : frag);
     totalVouchersSpan.textContent = vouchers.length;
     validVouchersSpan.textContent = validCount;
     let valueText = String(Math.round(validValue * 100) / 100);
@@ -1514,8 +1573,8 @@ document.addEventListener('DOMContentLoaded', function() {
     removeExpiredBtn.hidden = expiredCount === 0;
     if (removeExpiredBtn.hidden) resetRemoveExpiredBtn();
 
-    // Refresh the site autocomplete with the current list
-    updateSiteList(sorted);
+    // Refresh the site autocomplete with the full list
+    updateSiteList(vouchers);
   }
 
   // Autocomplete for the site field: the distinct known sites (the

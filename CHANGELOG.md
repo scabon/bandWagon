@@ -14,6 +14,10 @@ When releasing a new version:
 3. bump `"version"` in `extension/manifest.json` to match the new section;
 4. run `python tools/check-changelog.py`.
 
+## [1.3.0] — 2026-11-02
+
+- Search field above the voucher list: filters by site name, site URL, code or amount as you type (accent-insensitive), with a “no match” message when nothing fits.
+
 ## [1.2.1] — 2026-11-01
 
 - Fixed: the Import file picker did not open on Firefox — the file input was hidden, and Firefox only opens the picker for a rendered input (now rendered off-screen).
