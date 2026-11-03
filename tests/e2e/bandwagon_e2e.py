@@ -1481,8 +1481,8 @@ def popup_tests(s):
             " top: document.querySelector('#changelogContent ul li').textContent});"))
         check("menu: Changelog lists the version history",
               cl["hidden"] is False
-              and cl["versions"] == ["1.3.0", "1.2.1", "1.2.0", "1.1.0", "1.0.1", "1.0.0"]
-              and "Search field above the voucher list" in cl["top"], cl)
+              and cl["versions"] == ["1.3.1", "1.3.0", "1.2.1", "1.2.0", "1.1.0", "1.0.1", "1.0.0"]
+              and "Rate this extension" in cl["top"], cl)
         s.page_js("document.querySelector('#view-changelog .back-btn').click(); return 'ok';")
 
         # language switch to French, from the Settings view

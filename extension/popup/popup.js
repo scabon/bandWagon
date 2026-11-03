@@ -155,6 +155,8 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
+                                { version: '1.3.1',
+          items: ['Fixed: the "Rate this extension" link in the About view now opens the Edge Add-ons listing on Edge (it fell back to the Chrome Web Store while the Edge listing was pending).'] },
                                 { version: '1.3.0',
           items: ['Search field above the voucher list: filters by site name, site URL, code or amount as you type (accent-insensitive), with a “no match” message when nothing fits.'] },
                                 { version: '1.2.1',
@@ -310,6 +312,8 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
+                                { version: '1.3.1',
+          items: ['Corrig\u00e9 : le lien \u00ab Noter l\u2019extension \u00bb de la vue \u00c0 propos ouvre maintenant la fiche Edge Add-ons sur Edge (repli sur le Chrome Web Store tant que la fiche Edge \u00e9tait en attente).'] },
                                 { version: '1.3.0',
           items: ['Champ de recherche au-dessus de la liste des bons : filtre par nom de site, URL, code ou montant au fil de la frappe (insensible aux accents), avec un message \u00ab aucun r\u00e9sultat \u00bb quand rien ne correspond.'] },
                                 { version: '1.2.1',
@@ -388,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // so it falls back to the Chrome Web Store page meanwhile.
   const STORE_URL_FIREFOX = 'https://addons.mozilla.org/addon/bandwagon/';
   const STORE_URL_CHROME = 'https://chromewebstore.google.com/detail/bandwagon/eiiafhkbefmdecnjfhkblldakggifhik';
-  const STORE_URL_EDGE = STORE_URL_CHROME;
+  const STORE_URL_EDGE = 'https://microsoftedge.microsoft.com/addons/detail/bandwagon/jbhebpicpfbcckjikdbkfglhomhiacij';
 
   function storeRatingUrl() {
     if (browser.runtime && browser.runtime.getBrowserInfo) return STORE_URL_FIREFOX;
