@@ -749,6 +749,9 @@ def popup_tests(s):
               st["total"] == "0" and st["valid"] == "0"
               and "No vouchers yet" in st["empty"], st["empty"])
 
+        check("popup: search box hidden with an empty list",
+              s.page_js("return document.getElementById('searchInput').hidden;") is True)
+
         icon = json.loads(s.page_js(
             "var im = document.querySelector('h1 img');"
             "return JSON.stringify({present: !!im,"
@@ -815,10 +818,15 @@ def popup_tests(s):
                          "createdAt": "2026-09-29T00:00:00.000Z"}]
         s.client.navigate(url + "?e2e-seed=" + quote(json.dumps(expired_seed)))
         time.sleep(1)
+        check("popup: search box still hidden with a single voucher",
+              s.page_js("return document.getElementById('searchInput').hidden;") is True)
 
         soon = date.today() + timedelta(days=7)
         soon_d = soon.strftime("%Y-%m-%d")
         popup_add(s, "E2E-FUTURE-999", "2028-06-30")
+        time.sleep(0.6)
+        check("popup: search box appears from two vouchers on",
+              s.page_js("return !document.getElementById('searchInput').hidden;") is True)
         popup_add(s, "E2E-SOON-111", soon_d)
         time.sleep(1)
 

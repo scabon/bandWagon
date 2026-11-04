@@ -1456,8 +1456,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Render vouchers in the list, filtered by the search box and sorted
   // by date, code or value
   function renderVouchers(vouchers) {
-    // The search box is pointless with an empty list
-    searchInput.hidden = vouchers.length === 0;
+    // The search box is pointless with fewer than two vouchers
+    searchInput.hidden = vouchers.length < 2;
 
     const query = searchInput.value.trim();
     const visible = query
