@@ -1450,6 +1450,7 @@ def popup_tests(s):
               and about["madeBy"] == "Made by: cabon14.com"
               and about["links"] == [["about-site", "https://cabon14.com/"],
                                     ["about-site", "mailto:support@cabon14.com"],
+                                    ["about-source", "https://github.com/scabon/bandWagon"],
                                     ["rate-store", "https://addons.mozilla.org/addon/bandwagon/"],
                                     ["donate-liberapay", "https://liberapay.com/cabon14/"],
                                     ["donate-tipeee", "https://en.tipeee.com/cabon14/"]],
@@ -1495,8 +1496,8 @@ def popup_tests(s):
             " top: document.querySelector('#changelogContent ul li').textContent});"))
         check("menu: Changelog lists the version history",
               cl["hidden"] is False
-              and cl["versions"] == ["1.3.1", "1.3.0", "1.2.1", "1.2.0", "1.1.0", "1.0.1", "1.0.0"]
-              and "Rate this extension" in cl["top"], cl)
+              and cl["versions"] == ["1.3.2", "1.3.1", "1.3.0", "1.2.1", "1.2.0", "1.1.0", "1.0.1", "1.0.0"]
+              and "Source link to the GitHub repository" in cl["top"], cl)
         s.page_js("document.querySelector('#view-changelog .back-btn').click(); return 'ok';")
 
         # language switch to French, from the Settings view

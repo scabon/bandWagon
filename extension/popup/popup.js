@@ -155,6 +155,8 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
+                                { version: '1.3.2',
+          items: ['Added a Source link to the GitHub repository in the About view.'] },
                                 { version: '1.3.1',
           items: ['Fixed: the "Rate this extension" link in the About view now opens the Edge Add-ons listing on Edge (it fell back to the Chrome Web Store while the Edge listing was pending).'] },
                                 { version: '1.3.0',
@@ -192,6 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
       aboutSite: 'cabon14.com',
       supportLabel: 'Support:',
       supportEmail: 'support@cabon14.com',
+      sourceLabel: 'Source:',
       donateTitle: 'Support bandWagon',
       donateLiberapay: 'Donate on Liberapay',
       donateTipeee: 'Tip on Tipeee',
@@ -312,6 +315,8 @@ document.addEventListener('DOMContentLoaded', function() {
           items: [] }
       ],
       changelogEntries: [
+                                { version: '1.3.2',
+          items: ['Ajout d\u2019un lien Source vers le d\u00e9p\u00f4t GitHub dans la vue \u00c0 propos.'] },
                                 { version: '1.3.1',
           items: ['Corrig\u00e9 : le lien \u00ab Noter l\u2019extension \u00bb de la vue \u00c0 propos ouvre maintenant la fiche Edge Add-ons sur Edge (repli sur le Chrome Web Store tant que la fiche Edge \u00e9tait en attente).'] },
                                 { version: '1.3.0',
@@ -349,6 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
       aboutSite: 'cabon14.com',
       supportLabel: 'Assistance :',
       supportEmail: 'support@cabon14.com',
+      sourceLabel: 'Source :',
       donateTitle: 'Soutenir bandWagon',
       donateLiberapay: 'Soutenir sur Liberapay',
       donateTipeee: 'Pourboire sur Tipeee',
@@ -379,6 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   // Donation links (see AGENTS.md, Donations section)
+  const SOURCE_URL = 'https://github.com/scabon/bandWagon';
   const DONATION_LIBERAPAY = 'https://liberapay.com/cabon14/';
   // Tipeee serves a French UI on fr.tipeee.com and an English UI on
   // en.tipeee.com (same campaign) — pick per popup language.
@@ -838,6 +845,17 @@ document.addEventListener('DOMContentLoaded', function() {
     supportLine.appendChild(document.createTextNode(' '));
     supportLine.appendChild(support);
 
+    const source = document.createElement('a');
+    source.href = SOURCE_URL;
+    source.target = '_blank';
+    source.rel = 'noopener noreferrer';
+    source.className = 'about-source';
+    source.textContent = 'github.com/scabon/bandWagon';
+    const sourceLine = buildNode('p');
+    sourceLine.appendChild(buildNode('span', '', t('sourceLabel')));
+    sourceLine.appendChild(document.createTextNode(' '));
+    sourceLine.appendChild(source);
+
     const rate = document.createElement('a');
     rate.href = storeRatingUrl();
     rate.target = '_blank';
@@ -865,7 +883,7 @@ document.addEventListener('DOMContentLoaded', function() {
     donateRow.appendChild(tipeee);
 
     aboutContent.replaceChildren(name, versionNode, tagline, note,
-                                 siteLine, supportLine, rateLine,
+                                 siteLine, supportLine, sourceLine, rateLine,
                                  donateTitle, donateRow);
   }
 

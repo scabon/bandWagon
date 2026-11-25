@@ -14,6 +14,10 @@ When releasing a new version:
 3. bump `"version"` in `extension/manifest.json` to match the new section;
 4. run the changelog sync check.
 
+## [1.3.2] — 2026-11-25
+
+- Added a Source link to the GitHub repository in the About view.
+
 ## [1.3.1] — 2026-11-03
 
 - Fixed: the "Rate this extension" link in the About view now opens the Edge Add-ons listing on Edge (it fell back to the Chrome Web Store while the Edge listing was pending).
