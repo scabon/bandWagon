@@ -46,12 +46,11 @@ is only used to read tab URLs for arrival notifications.
 ## Project layout
 
 - `extension/` — all extension code ([extension/README.md](extension/README.md))
-- `tools/` — icon and screenshot helper scripts, `stores.json` (public store IDs)
-- `store/` — store-listing assets (descriptions, icons, screenshots)
 - `docs/` — design notes
 - `tests/e2e/` — the Marionette e2e suite (phases a/b/c)
 
-The store release/upload tooling is maintained privately by the author.
+Store-listing assets (descriptions, icons, screenshots) and the
+release/upload tooling are maintained privately by the author.
 
 bandWagon grew out of [wagonBAR](https://github.com/scabon/wagonBAR),
 the SNCF Connect-specific voucher reminder, which stays alive
