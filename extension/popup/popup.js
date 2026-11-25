@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
       ],
       changelogEntries: [
                                 { version: '1.3.2',
-          items: ['Added a Source link to the GitHub repository in the About view.'] },
+          items: ['Added a Source link to the GitHub repository in the About view, styled like the other About links (accent color, visited state included).'] },
                                 { version: '1.3.1',
           items: ['Fixed: the "Rate this extension" link in the About view now opens the Edge Add-ons listing on Edge (it fell back to the Chrome Web Store while the Edge listing was pending).'] },
                                 { version: '1.3.0',
